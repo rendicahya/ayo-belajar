@@ -63,7 +63,7 @@
   }
 
   .slice path {
-    fill: #fff6e2;
+    fill: var(--pizza-empty);
     stroke: #c98a3c;
     stroke-width: 3;
     stroke-linejoin: round;

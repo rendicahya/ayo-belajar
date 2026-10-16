@@ -27,6 +27,23 @@ export function toggleMute() {
   save(SETTINGS_KEY, settings);
 }
 
+// tema: 'light' / 'dark' kalau dipilih manual, kosong = ikut sistem
+const systemDark = () => typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: dark)').matches;
+export const isDark = () => (settings.theme ? settings.theme === 'dark' : systemDark());
+
+export function applyTheme() {
+  const root = document.documentElement;
+  if (settings.theme) root.dataset.theme = settings.theme;
+  else delete root.dataset.theme;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', isDark() ? '#1c1a30' : '#ffb703');
+}
+
+export function toggleTheme() {
+  settings.theme = isDark() ? 'light' : 'dark';
+  save(SETTINGS_KEY, settings);
+  applyTheme();
+}
+
 export function getBest(key) {
   return load(BEST_KEY)[key] ?? 0;
 }

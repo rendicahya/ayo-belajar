@@ -76,7 +76,7 @@
   .best {
     padding: 4px 12px;
     border-radius: 999px;
-    background: #fff3cc;
+    background: var(--soft-sun);
     font-weight: 600;
     white-space: nowrap;
   }

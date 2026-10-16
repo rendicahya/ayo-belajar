@@ -9,6 +9,10 @@
   import JumpGame from './JumpGame.svelte';
   import FractionGame from './FractionGame.svelte';
   import MoneyGame from './MoneyGame.svelte';
+  import FactsGame from './FactsGame.svelte';
+  import PatternGame from './PatternGame.svelte';
+  import MeasureGame from './MeasureGame.svelte';
+  import ShapeGame from './ShapeGame.svelte';
   import { TOTAL_ROUNDS } from '../lib/modes.js';
   import { pick } from '../lib/generate.js';
   import { confetti } from '../lib/confetti.js';
@@ -28,6 +32,10 @@
     jump: JumpGame,
     fraction: FractionGame,
     money: MoneyGame,
+    facts: FactsGame,
+    pattern: PatternGame,
+    measure: MeasureGame,
+    shape: ShapeGame,
   };
   const praises = ['Hebat!', 'Pintar!', 'Keren!', 'Luar biasa!', 'Mantap!', 'Jago!', 'Benar sekali!'];
   const cheers = ['🎉', '🥳', '🌟', '🚀', '🦄', '🐯', '🍭'];
@@ -193,12 +201,12 @@
 
   .dots li.current {
     background: var(--sun);
-    color: var(--ink);
+    color: var(--on-sun);
     transform: scale(1.15);
   }
 
   .dots li.star {
-    background: #fff3cc;
+    background: var(--soft-sun);
     font-size: 0.95rem;
   }
 
@@ -214,7 +222,7 @@
     display: grid;
     place-items: center;
     padding: 16px;
-    background: rgba(45, 42, 74, 0.35);
+    background: var(--overlay);
     animation: fade 0.2s;
   }
 
@@ -254,7 +262,7 @@
     gap: 10px;
     padding: 8px 14px;
     border-radius: 16px;
-    background: #fff3cc;
+    background: var(--soft-sun);
     text-align: left;
   }
 

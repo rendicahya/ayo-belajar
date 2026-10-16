@@ -10,8 +10,9 @@ const columnLevels = [
 
 export const GROUPS = [
   { title: 'Berhitung Bersusun', modes: ['tambah', 'kurang', 'kali', 'bagi', 'porogapit'] },
-  { title: 'Mengenal Bilangan', modes: ['garis', 'nilai', 'banding', 'urut', 'pecahan'] },
-  { title: 'Tantangan', modes: ['hasil', 'cerita', 'uang'] },
+  { title: 'Mengenal Bilangan', modes: ['garis', 'nilai', 'banding', 'urut', 'pola', 'pecahan'] },
+  { title: 'Bangun & Ukuran', modes: ['bangun', 'ukur'] },
+  { title: 'Tantangan', modes: ['tabel', 'hasil', 'cerita', 'uang'] },
 ];
 
 export const MODES = {
@@ -192,6 +193,66 @@ export const MODES = {
         digits: 3,
         desc: 'Semua operasi',
       },
+    ],
+  },
+  tabel: {
+    id: 'tabel',
+    kind: 'facts',
+    title: 'Tabel Perkalian',
+    icon: '🧩',
+    color: 'var(--pink)',
+    tagline: 'Hafalkan perkalian 1–10',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', tables: [2, 5, 10], desc: 'Perkalian 2, 5, dan 10' },
+      { emoji: '🐥', name: 'Lumayan', tables: [3, 4], desc: 'Perkalian 3 dan 4' },
+      { emoji: '🦊', name: 'Sedang', tables: [6, 7], desc: 'Perkalian 6 dan 7' },
+      { emoji: '🦁', name: 'Sulit', tables: [8, 9], desc: 'Perkalian 8 dan 9' },
+      { emoji: '🐉', name: 'Jago', tables: [2, 3, 4, 5, 6, 7, 8, 9], desc: 'Campuran 1–10' },
+    ],
+  },
+  pola: {
+    id: 'pola',
+    kind: 'pattern',
+    title: 'Pola Bilangan',
+    icon: '🔢',
+    color: 'var(--teal)',
+    tagline: 'Lanjutkan polanya',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', kind: 'step', steps: [1, 2], desc: 'Lompat 1 atau 2' },
+      { emoji: '🐥', name: 'Lumayan', kind: 'step', steps: [5, 10], desc: 'Lompat 5 atau 10' },
+      { emoji: '🦊', name: 'Sedang', kind: 'step', steps: [2, 3, 5], dir: -1, desc: 'Pola mundur' },
+      { emoji: '🦁', name: 'Sulit', kind: 'step', steps: [3, 4, 6, 7, 8, 9], blanks: 2, desc: 'Lompat 3 sampai 9, dua angka hilang' },
+      { emoji: '🐉', name: 'Jago', kind: 'grow', desc: 'Pola bertambah & dikali 2' },
+    ],
+  },
+  bangun: {
+    id: 'bangun',
+    kind: 'shape',
+    title: 'Bangun Datar',
+    icon: '🔷',
+    color: 'var(--sky)',
+    tagline: 'Segitiga, persegi, lingkaran',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', type: 'name', desc: 'Kenali nama bangun' },
+      { emoji: '🐥', name: 'Lumayan', type: 'find', desc: 'Cari semua bangun yang sama' },
+      { emoji: '🦊', name: 'Sedang', type: 'sides', desc: 'Hitung sisinya' },
+      { emoji: '🦁', name: 'Sulit', type: 'corners', desc: 'Hitung titik sudutnya' },
+      { emoji: '🐉', name: 'Jago', type: 'clue', desc: 'Tebak bangun dari cirinya' },
+    ],
+  },
+  ukur: {
+    id: 'ukur',
+    kind: 'measure',
+    title: 'Satuan Ukur',
+    icon: '📏',
+    color: 'var(--lime)',
+    tagline: 'Penggaris, timbangan, satuan',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', type: 'ruler', desc: 'Ukur panjang dengan penggaris' },
+      { emoji: '🐥', name: 'Lumayan', type: 'ruler-offset', desc: 'Ukur yang tidak mulai dari 0' },
+      { emoji: '🦊', name: 'Sedang', type: 'scale', desc: 'Baca timbangan (kg)' },
+      { emoji: '🦁', name: 'Sulit', type: 'convert', desc: 'Ubah satuan: m, cm, kg, g' },
+      { emoji: '🐉', name: 'Jago', type: 'compare', desc: 'Bandingkan ukuran beda satuan' },
     ],
   },
   uang: {

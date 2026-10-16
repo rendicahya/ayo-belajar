@@ -15,6 +15,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <title>Jago Berhitung</title>
+    <script>
+      // pasang tema sebelum halaman digambar supaya tidak berkedip terang
+      try {
+        const t = JSON.parse(localStorage.getItem('jb-settings') || '{}').theme;
+        if (t) document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
   </head>
   <body>
     <div id="app"></div>

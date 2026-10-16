@@ -400,6 +400,186 @@ export function genJump({ type, max, tick = 1 }) {
   return { start, hop, count, dir, answer, text, max, tick, choices: [...opts].sort((x, y) => x - y) };
 }
 
+// ---------- Tabel perkalian ----------
+
+const FACTS_KEY = 'jb-facts';
+const loadFacts = () => {
+  try {
+    return JSON.parse(localStorage.getItem(FACTS_KEY)) ?? {};
+  } catch {
+    return {};
+  }
+};
+let lastFact = '';
+
+/** Fakta perkalian; yang pernah salah punya bobot lebih besar sehingga lebih sering muncul. */
+export function genFact({ tables }) {
+  const misses = loadFacts();
+  const pool = [];
+  for (const t of tables)
+    for (let b = 1; b <= 10; b++) {
+      const [x, y] = Math.random() < 0.5 ? [t, b] : [b, t];
+      const id = `${Math.min(x, y)}x${Math.max(x, y)}`;
+      if (id === lastFact) continue;
+      pool.push({ a: x, b: y, id, w: 1 + 3 * (misses[id] ?? 0) + (b === 1 || b === 10 ? -0.5 : 0) });
+    }
+  let r = Math.random() * sum(pool.map((f) => f.w));
+  const fact = pool.find((f) => (r -= f.w) < 0) ?? pool.at(-1);
+  lastFact = fact.id;
+  return { a: fact.a, b: fact.b, id: fact.id, answer: fact.a * fact.b };
+}
+
+/** Catat hasil: salah menambah bobot, benar langsung mengurangi. */
+export function recordFact(id, firstTry) {
+  const misses = loadFacts();
+  misses[id] = Math.max(0, Math.min(5, (misses[id] ?? 0) + (firstTry ? -1 : 1)));
+  if (!misses[id]) delete misses[id];
+  try {
+    localStorage.setItem(FACTS_KEY, JSON.stringify(misses));
+  } catch {}
+}
+
+// ---------- Pola bilangan ----------
+
+export function genPattern({ kind, steps, blanks = 1, dir = 1 }) {
+  const len = 6;
+  let seq, rule;
+  if (kind === 'grow') {
+    if (Math.random() < 0.5) {
+      let v = rand(1, 5);
+      let d = rand(1, 3);
+      seq = [v];
+      while (seq.length < len) seq.push((v += d++));
+      rule = { type: 'grow', d0: seq[1] - seq[0] };
+    } else {
+      let v = rand(1, 3);
+      seq = [v];
+      while (seq.length < len) seq.push((v *= 2));
+      rule = { type: 'double' };
+    }
+  } else {
+    const step = pick(steps);
+    const start = dir > 0 ? (step >= 5 && Math.random() < 0.7 ? step * rand(0, 4) : rand(0, 20)) : rand(step * (len - 1), step * (len - 1) + 20);
+    seq = Array.from({ length: len }, (_, i) => start + dir * step * i);
+    rule = { type: 'step', step: dir * step };
+  }
+  // posisi kosong: minimal ada dua angka berurutan di depan supaya aturannya bisa ditebak
+  const first = blanks > 1 || kind === 'grow' ? 2 : 1;
+  const hidden = shuffle(Array.from({ length: len - first }, (_, i) => i + first))
+    .slice(0, blanks)
+    .sort((a, b) => a - b);
+  return { seq, hidden, rule };
+}
+
+// ---------- Satuan ukur ----------
+
+const OBJECTS = [
+  ['pensil', '#f5b700'],
+  ['krayon', '#ec4fa8'],
+  ['spidol', '#2fa6dc'],
+  ['sedotan', '#5aae22'],
+  ['pita', '#8f4fd9'],
+  ['kapur', '#e2780c'],
+];
+
+const nearChoices = (answer, deltas, min = 0) => {
+  const set = new Set([answer]);
+  for (const d of shuffle(deltas)) if (set.size < 4 && answer + d >= min) set.add(answer + d);
+  return [...set].sort((a, b) => a - b);
+};
+
+export function genMeasure({ type }) {
+  if (type === 'ruler' || type === 'ruler-offset') {
+    const [name, color] = pick(OBJECTS);
+    if (type === 'ruler') {
+      const length = rand(3, 14);
+      return { name, color, start: 0, length, max: 15, choices: nearChoices(length, [-2, -1, 1, 2], 1), answer: length };
+    }
+    const start = rand(1, 5);
+    const length = rand(3, 10);
+    const end = start + length;
+    // pengecoh utama: angka di ujung benda (lupa dikurangi titik awal)
+    const choices = [...new Set([length, end, ...shuffle([length - 1, length + 1, length + 2])])].slice(0, 4).sort((a, b) => a - b);
+    return { name, color, start, length, max: 20, choices, answer: length };
+  }
+  if (type === 'scale') {
+    const items = [['semangka', '🍉'], ['beras', '🍚'], ['kucing', '🐈'], ['labu', '🎃'], ['nanas', '🍍'], ['tas', '🎒']];
+    const [name, emoji] = pick(items);
+    const value = rand(1, 9);
+    return { name, emoji, value, answer: value, choices: nearChoices(value, [-2, -1, 1, 2], 0) };
+  }
+  if (type === 'convert') {
+    const n = rand(1, 5);
+    const [big, small, f] = pick([
+      ['m', 'cm', 100],
+      ['kg', 'g', 1000],
+      ['km', 'm', 1000],
+    ]);
+    if (Math.random() < 0.65) {
+      const answer = n * f;
+      return { text: `${n} ${big} = ? ${small}`, answer, unit: small, choices: [n, answer / 10, answer, answer * 10] };
+    }
+    return { text: `${n * f} ${small} = ? ${big}`, answer: n, unit: big, choices: [...new Set([n, n * 10, n * 100, n + 1])].sort((a, b) => a - b) };
+  }
+  // bandingkan dua ukuran dengan satuan berbeda
+  const [big, small, f] = pick([
+    ['m', 'cm', 100],
+    ['kg', 'g', 1000],
+  ]);
+  const n = rand(1, 3);
+  const r = Math.random();
+  const smallVal = r < 0.25 ? n * f : n * f + pick([-1, 1]) * (f === 100 ? pick([10, 20, 30, 50]) : pick([100, 200, 250, 500]));
+  const left = { text: `${n} ${big}`, value: n * f };
+  const right = { text: `${smallVal} ${small}`, value: smallVal };
+  return Math.random() < 0.5 ? { left, right } : { left: right, right: left };
+}
+
+// ---------- Bangun datar ----------
+
+const poly = (n, r = 44, rot = -90) =>
+  Array.from({ length: n }, (_, i) => {
+    const a = ((rot + (360 / n) * i) * Math.PI) / 180;
+    return [50 + r * Math.cos(a), 52 + r * Math.sin(a)].map((v) => Math.round(v * 10) / 10);
+  });
+
+export const SHAPES = {
+  lingkaran: { name: 'Lingkaran', circle: true, sides: 0, corners: 0, clue: 'Aku bulat seperti roda dan tidak punya titik sudut.' },
+  segitiga: { name: 'Segitiga', pts: [[50, 8], [93, 88], [7, 88]], sides: 3, corners: 3, clue: 'Aku punya 3 sisi dan 3 titik sudut.' },
+  persegi: { name: 'Persegi', pts: [[14, 14], [86, 14], [86, 86], [14, 86]], sides: 4, corners: 4, clue: 'Keempat sisiku sama panjang dan semua sudutku siku-siku.' },
+  persegiPanjang: { name: 'Persegi panjang', pts: [[4, 26], [96, 26], [96, 76], [4, 76]], sides: 4, corners: 4, clue: 'Semua sudutku siku-siku. Dua sisiku panjang dan dua sisiku pendek.' },
+  belahKetupat: { name: 'Belah ketupat', pts: [[50, 4], [82, 50], [50, 96], [18, 50]], sides: 4, corners: 4, clue: 'Keempat sisiku sama panjang, tapi sudutku tidak siku-siku. Bentukku seperti wajik.' },
+  trapesium: { name: 'Trapesium', pts: [[30, 22], [70, 22], [95, 80], [5, 80]], sides: 4, corners: 4, clue: 'Aku punya 4 sisi. Sisi atasku lebih pendek dari sisi bawahku.' },
+  jajarGenjang: { name: 'Jajar genjang', pts: [[28, 24], [96, 24], [72, 78], [4, 78]], sides: 4, corners: 4, clue: 'Sisi-sisiku yang berhadapan sama panjang, tapi badanku miring.' },
+  segiLima: { name: 'Segi lima', pts: poly(5), sides: 5, corners: 5, clue: 'Aku punya 5 sisi dan 5 titik sudut.' },
+  segiEnam: { name: 'Segi enam', pts: poly(6, 45, 0), sides: 6, corners: 6, clue: 'Aku punya 6 sisi, seperti sarang lebah.' },
+};
+
+const BASIC = ['lingkaran', 'segitiga', 'persegi', 'persegiPanjang'];
+const SHAPE_COLORS = ['var(--coral)', 'var(--sky)', 'var(--lime)', 'var(--grape)', 'var(--pink)', 'var(--orange)', 'var(--teal)'];
+const dressShape = (id) => ({ id, color: pick(SHAPE_COLORS), rot: id === 'lingkaran' ? 0 : rand(-12, 12), scale: rand(80, 100) / 100 });
+
+export function genShape({ type }) {
+  const all = Object.keys(SHAPES);
+  if (type === 'name') {
+    const id = pick(BASIC);
+    return { shape: dressShape(id), answer: id, choices: shuffle(BASIC) };
+  }
+  if (type === 'find') {
+    const target = pick(BASIC);
+    const count = rand(2, 4);
+    const others = Array.from({ length: 8 - count }, () => pick(BASIC.filter((s) => s !== target)));
+    return { target, field: shuffle([...Array(count).fill(target), ...others]).map(dressShape) };
+  }
+  if (type === 'sides' || type === 'corners') {
+    const id = pick(all.filter((s) => type === 'corners' || s !== 'lingkaran'));
+    const answer = SHAPES[id][type];
+    return { shape: dressShape(id), answer, choices: answer === 0 || (type === 'corners' && Math.random() < 0.5) ? [0, 3, 4, 5, 6] : [3, 4, 5, 6] };
+  }
+  const id = pick(all);
+  const pool = all.filter((s) => s !== id && !(id === 'persegi' && s === 'belahKetupat') && !(id === 'belahKetupat' && s === 'persegi'));
+  return { answer: id, clue: SHAPES[id].clue, choices: shuffle([id, ...shuffle(pool).slice(0, 3)]).map(dressShape) };
+}
+
 // ---------- Pecahan ----------
 
 const fr = (k, d) => ({ k, d });

@@ -348,7 +348,7 @@
 
   .cell.active {
     border: 4px solid var(--sun);
-    background: #fff8dc;
+    background: var(--active-bg);
     animation: bob 1.2s ease-in-out infinite;
   }
 
@@ -424,7 +424,7 @@
 
   .digits .pick {
     background: var(--sun);
-    color: var(--ink);
+    color: var(--on-sun);
     animation: bob 1.4s ease-in-out infinite;
   }
 

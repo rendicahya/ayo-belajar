@@ -244,7 +244,7 @@
     background: transparent;
     color: transparent;
     box-shadow: none;
-    border: 4px dashed #c9c3dd;
+    border: 4px dashed var(--dash);
   }
 
   .card.ok {

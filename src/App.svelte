@@ -1,12 +1,14 @@
 <script>
   import { MODES } from './lib/modes.js';
-  import { settings, toggleMute } from './lib/settings.svelte.js';
+  import { settings, toggleMute, toggleTheme, applyTheme, isDark } from './lib/settings.svelte.js';
   import Home from './components/Home.svelte';
   import LevelSelect from './components/LevelSelect.svelte';
   import Game from './components/Game.svelte';
   import StickerAlbum from './components/StickerAlbum.svelte';
 
   let hash = $state(location.hash);
+  applyTheme();
+  const dark = $derived(isDark());
 
   // #/ → beranda, #/tambah → pilih level, #/tambah/2 → main level 2
   const route = $derived.by(() => {
@@ -39,6 +41,14 @@
       <span class="name">{route.title}</span>
     {/if}
   </div>
+  <button
+    class="round"
+    onclick={toggleTheme}
+    aria-label={dark ? 'Mode terang' : 'Mode gelap'}
+    title={dark ? 'Mode terang' : 'Mode gelap'}
+  >
+    {dark ? '☀️' : '🌙'}
+  </button>
   <button
     class="round"
     onclick={toggleMute}

@@ -20,9 +20,15 @@ Kalau jawabannya benar tapi simpanan, pinjaman, atau sisa kecilnya tidak ditulis
 - **Nilai tempat:** menghitung balok ratusan/puluhan/satuan, menyusun balok sesuai bilangan, dan menentukan nilai suatu angka (sampai ribuan).
 - **Perbandingan:** pilih lebih kecil (<), sama dengan (=), atau lebih besar (>).
 - **Mengurutkan:** geser kartu bilangan (drag & drop, juga dengan sentuhan) sampai urut.
+- **Pola bilangan:** melengkapi pola maju, mundur, lompat 3–9, pola yang lompatannya makin jauh, dan pola dikali 2.
 - **Pecahan:** mengenali pecahan pada pizza 🍕, mewarnai potongan sesuai pecahan, dan membandingkan pecahan (termasuk yang senilai, misalnya ½ = 2/4).
 
+**Bangun & ukuran**
+- **Bangun datar:** mengenali nama bangun, mencari semua bangun yang sama, menghitung sisi dan titik sudut (bisa diketuk untuk ditandai), dan menebak bangun dari cirinya.
+- **Satuan ukur:** mengukur dengan penggaris (termasuk benda yang tidak mulai dari 0), membaca timbangan, mengubah satuan (m–cm, kg–g, km–m), dan membandingkan ukuran dengan satuan berbeda.
+
 **Tantangan**
+- **Tabel perkalian:** latihan cepat perkalian 1–10. Fakta yang pernah salah lebih sering muncul, dan ada bantuan "lihat kelompoknya".
 - **Bandingkan hasil:** misalnya `3 + 4 ○ 2 + 6` atau `3 × 4 ○ 2 × 6`.
 - **Soal cerita:** baca ceritanya (bisa dibacakan), pilih operasi yang tepat, lalu kerjakan secara bersusun.
 - **Uang & belanja:** menghitung uang rupiah, membayar dengan uang pas, menghitung total belanja di warung, dan menghitung kembalian.
@@ -33,6 +39,7 @@ Kalau jawabannya benar tapi simpanan, pinjaman, atau sisa kecilnya tidak ditulis
 - 🔊 **Ketuk untuk mendengar:** bilangan, petunjuk, dan soal cerita dibacakan dalam bahasa Indonesia (Web Speech API).
 - ⭐ **Bintang & stiker:** bintang didapat bila soal benar pada percobaan pertama tanpa petunjuk. Setiap 5 bintang membuka 1 dari 40 stiker di album.
 - 🔥 **Hari berturut-turut:** menghitung berapa hari berturut-turut anak berlatih.
+- 🌙 **Mode gelap:** mengikuti pengaturan perangkat, atau dipilih lewat tombol 🌙/☀️ di pojok atas.
 - 📱 **PWA:** bisa dipasang ke layar utama HP/tablet dan dipakai offline setelah dibuka sekali.
 
 Setiap mode punya 5 level dengan 10 soal per sesi. Progres tersimpan di `localStorage` perangkat.

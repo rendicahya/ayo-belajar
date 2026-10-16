@@ -92,9 +92,9 @@
   }
 
   .locked {
-    background: #f1ece2;
+    background: var(--locked);
     box-shadow: none;
-    border: 2px dashed #d8d0c0;
+    border: 2px dashed var(--locked-line);
     color: var(--muted);
     animation: none;
   }

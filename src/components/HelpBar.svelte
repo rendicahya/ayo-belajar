@@ -44,7 +44,7 @@
     width: min(100%, 460px);
     padding: 12px 14px;
     border-radius: 20px;
-    background: #fffbe8;
+    background: var(--soft-sun);
     border: 3px solid var(--sun);
     animation: pop 0.25s ease-out;
   }

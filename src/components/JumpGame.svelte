@@ -160,7 +160,7 @@
     min-width: 1.4em;
     padding: 0 0.15em;
     border-radius: 14px;
-    border: 3px dashed #c9c3dd;
+    border: 3px dashed var(--dash);
     color: var(--muted);
   }
 

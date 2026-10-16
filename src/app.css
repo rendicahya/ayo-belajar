@@ -21,9 +21,88 @@
   --radius: 24px;
   --shadow: 0 6px 0 rgba(45, 42, 74, 0.1), 0 12px 30px rgba(45, 42, 74, 0.08);
 
+  /* permukaan papan & kotak */
+  --grid: #eef3fb;
+  --dash: #c9c3dd;
+  --cell-bg: rgba(255, 255, 255, 0.85);
+  --active-bg: #fff8dc;
+  --hl-bg: #fff3c4;
+  --soft-sun: #fff3cc;
+  --faint: #c3bdd6;
+  --on-sun: #2d2a4a;
+  --nudge-text: #b86e00;
+  --overlay: rgba(45, 42, 74, 0.35);
+  --locked: #f1ece2;
+  --locked-line: #d8d0c0;
+  --pizza-empty: #fff6e2;
+  --blob1: #ffe6b8;
+  --blob2: #d4efff;
+  --blob3: #ebdfff;
+  --blob4: #dcf4c6;
+
+  color-scheme: light;
   font-family: 'Fredoka', 'Comic Sans MS', 'Trebuchet MS', system-ui, sans-serif;
   color: var(--ink);
   line-height: 1.4;
+}
+
+/* Mode gelap: mengikuti sistem, kecuali dipilih manual lewat tombol 🌙/☀️ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #1c1a30;
+    --ink: #eeebff;
+    --muted: #a9a5c8;
+    --card: #2a2844;
+    --line: #3d3a5c;
+    --ok-soft: #1c4232;
+    --bad-soft: #4e2232;
+    --shadow: 0 6px 0 rgba(0, 0, 0, 0.3), 0 12px 30px rgba(0, 0, 0, 0.25);
+    --grid: #33314f;
+    --dash: #5d5980;
+    --cell-bg: rgba(255, 255, 255, 0.05);
+    --active-bg: #4a3e18;
+    --hl-bg: #463d1f;
+    --soft-sun: #3e361c;
+    --faint: #5f5a82;
+    --nudge-text: #ffc24d;
+    --overlay: rgba(8, 7, 20, 0.6);
+    --locked: #34324f;
+    --locked-line: #4a4769;
+    --pizza-empty: #4a4258;
+    --blob1: #3a2f22;
+    --blob2: #1f3245;
+    --blob3: #33264a;
+    --blob4: #233a24;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #1c1a30;
+  --ink: #eeebff;
+  --muted: #a9a5c8;
+  --card: #2a2844;
+  --line: #3d3a5c;
+  --ok-soft: #1c4232;
+  --bad-soft: #4e2232;
+  --shadow: 0 6px 0 rgba(0, 0, 0, 0.3), 0 12px 30px rgba(0, 0, 0, 0.25);
+  --grid: #33314f;
+  --dash: #5d5980;
+  --cell-bg: rgba(255, 255, 255, 0.05);
+  --active-bg: #4a3e18;
+  --hl-bg: #463d1f;
+  --soft-sun: #3e361c;
+  --faint: #5f5a82;
+  --nudge-text: #ffc24d;
+  --overlay: rgba(8, 7, 20, 0.6);
+  --locked: #34324f;
+  --locked-line: #4a4769;
+  --pizza-empty: #4a4258;
+  --blob1: #3a2f22;
+  --blob2: #1f3245;
+  --blob3: #33264a;
+  --blob4: #233a24;
+  color-scheme: dark;
 }
 
 * {
@@ -39,10 +118,10 @@ body {
 body {
   background-color: var(--bg);
   background-image:
-    radial-gradient(circle at 8% 18%, #ffe6b8 0 70px, transparent 71px),
-    radial-gradient(circle at 94% 8%, #d4efff 0 110px, transparent 111px),
-    radial-gradient(circle at 88% 88%, #ebdfff 0 90px, transparent 91px),
-    radial-gradient(circle at 4% 92%, #dcf4c6 0 80px, transparent 81px);
+    radial-gradient(circle at 8% 18%, var(--blob1) 0 70px, transparent 71px),
+    radial-gradient(circle at 94% 8%, var(--blob2) 0 110px, transparent 111px),
+    radial-gradient(circle at 88% 88%, var(--blob3) 0 90px, transparent 91px),
+    radial-gradient(circle at 4% 92%, var(--blob4) 0 80px, transparent 81px);
   background-attachment: fixed;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
@@ -152,7 +231,7 @@ p {
 }
 
 .msg.nudge {
-  color: #b86e00;
+  color: var(--nudge-text);
 }
 
 /* lingkaran simpan/pinjam/sisa yang perlu diperiksa */

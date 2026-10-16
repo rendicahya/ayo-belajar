@@ -140,7 +140,7 @@
     border-radius: var(--radius);
     background-color: var(--card);
     background-image:
-      linear-gradient(#eef3fb 2px, transparent 2px), linear-gradient(90deg, #eef3fb 2px, transparent 2px);
+      linear-gradient(var(--grid) 2px, transparent 2px), linear-gradient(90deg, var(--grid) 2px, transparent 2px);
     background-size: 28px 28px;
     box-shadow: var(--shadow);
     font-variant-numeric: tabular-nums;
@@ -208,8 +208,8 @@
     width: calc(var(--cell) * 0.46);
     height: calc(var(--cell) * 0.46);
     border-radius: 50%;
-    border: 2px dashed #c9c3dd;
-    background: rgba(255, 255, 255, 0.9);
+    border: 2px dashed var(--dash);
+    background: var(--cell-bg);
     color: #fff;
     font-size: calc(var(--cell) * 0.3);
     font-weight: 700;
@@ -223,7 +223,7 @@
 
   .rem.active {
     border: 3px solid var(--sun);
-    background: #fff8dc;
+    background: var(--active-bg);
     color: var(--teal);
     box-shadow: 0 0 0 3px rgba(255, 183, 3, 0.3);
   }
@@ -232,15 +232,15 @@
     width: var(--cell);
     height: var(--cell);
     border-radius: calc(var(--cell) * 0.22);
-    border: 3px dashed #c9c3dd;
-    background: rgba(255, 255, 255, 0.85);
+    border: 3px dashed var(--dash);
+    background: var(--cell-bg);
     font-size: calc(var(--cell) * 0.72);
     font-weight: 600;
     line-height: 1;
   }
 
   .cell.hl {
-    background: #fff3c4;
+    background: var(--hl-bg);
   }
 
   .cell.filled {
@@ -249,7 +249,7 @@
 
   .cell.active {
     border: 4px solid var(--sun);
-    background: #fff8dc;
+    background: var(--active-bg);
     box-shadow: 0 0 0 5px rgba(255, 183, 3, 0.25);
     animation: bob 1.2s ease-in-out infinite;
   }

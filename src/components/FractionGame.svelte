@@ -294,7 +294,7 @@
     width: clamp(54px, 14vw, 90px);
     height: clamp(54px, 14vw, 90px);
     border-radius: 50%;
-    border: 4px dashed #c9c3dd;
+    border: 4px dashed var(--dash);
     background: var(--card);
     font-size: clamp(1.8rem, 8vw, 3rem);
     font-weight: 700;
@@ -335,7 +335,7 @@
 
   .cchoice:nth-child(2) {
     background: var(--sun);
-    color: var(--ink);
+    color: var(--on-sun);
   }
 
   .cchoice:nth-child(3) {
