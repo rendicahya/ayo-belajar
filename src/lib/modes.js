@@ -9,9 +9,9 @@ const columnLevels = [
 ].map((l) => ({ ...l, desc: `${l.count} bilangan, ${l.digits} digit` }));
 
 export const GROUPS = [
-  { title: 'Berhitung Bersusun', modes: ['tambah', 'kurang', 'kali', 'bagi'] },
-  { title: 'Mengenal Bilangan', modes: ['nilai', 'banding', 'urut'] },
-  { title: 'Tantangan', modes: ['hasil', 'cerita'] },
+  { title: 'Berhitung Bersusun', modes: ['tambah', 'kurang', 'kali', 'bagi', 'porogapit'] },
+  { title: 'Mengenal Bilangan', modes: ['garis', 'nilai', 'banding', 'urut', 'pecahan'] },
+  { title: 'Tantangan', modes: ['hasil', 'cerita', 'uang'] },
 ];
 
 export const MODES = {
@@ -54,13 +54,58 @@ export const MODES = {
     title: 'Pembagian',
     icon: '÷',
     color: 'var(--teal)',
-    tagline: 'Bersusun pendek (porogapit)',
+    tagline: 'Bersusun pendek, sisa ditulis kecil',
     levels: [
       { emoji: '🐣', name: 'Mudah', digits: 2, clean: true, desc: '2 digit ÷ 1 digit, tanpa sisa' },
       { emoji: '🐥', name: 'Lumayan', digits: 2, desc: '2 digit ÷ 1 digit, ada sisa di tengah' },
       { emoji: '🦊', name: 'Sedang', digits: 3, desc: '3 digit ÷ 1 digit' },
       { emoji: '🦁', name: 'Sulit', digits: 4, maxDiv: 5, desc: '4 digit ÷ 2 sampai 5' },
       { emoji: '🐉', name: 'Jago', digits: 4, minDiv: 6, desc: '4 digit ÷ 6 sampai 9' },
+    ],
+  },
+  porogapit: {
+    id: 'porogapit',
+    kind: 'longdiv',
+    title: 'Pembagian Panjang',
+    icon: '÷',
+    color: 'var(--indigo)',
+    tagline: 'Porogapit: kali, kurang, turunkan',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', digits: 2, divMin: 2, divMax: 4, rem: 'none', desc: '2 digit ÷ 1 digit, tanpa sisa' },
+      { emoji: '🐥', name: 'Lumayan', digits: 3, divMin: 2, divMax: 9, rem: 'none', desc: '3 digit ÷ 1 digit, tanpa sisa' },
+      { emoji: '🦊', name: 'Sedang', digits: 3, divMin: 3, divMax: 9, rem: 'yes', desc: '3 digit ÷ 1 digit, ada sisa' },
+      { emoji: '🦁', name: 'Sulit', digits: 3, divMin: 11, divMax: 25, rem: 'none', desc: '3 digit ÷ 2 digit' },
+      { emoji: '🐉', name: 'Jago', digits: 4, divMin: 11, divMax: 49, rem: 'any', desc: '4 digit ÷ 2 digit, bisa bersisa' },
+    ],
+  },
+  garis: {
+    id: 'garis',
+    kind: 'jump',
+    title: 'Garis Bilangan',
+    icon: '🐸',
+    color: 'var(--ok)',
+    tagline: 'Ikuti lompatan katak',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', type: 'add', max: 10, desc: 'Tambah sampai 10' },
+      { emoji: '🐥', name: 'Lumayan', type: 'sub', max: 10, desc: 'Kurang sampai 10' },
+      { emoji: '🦊', name: 'Sedang', type: 'mix', max: 20, desc: 'Tambah & kurang sampai 20' },
+      { emoji: '🦁', name: 'Sulit', type: 'mul', max: 20, desc: 'Perkalian = lompatan sama jauh' },
+      { emoji: '🐉', name: 'Jago', type: 'mix', max: 100, tick: 10, desc: 'Lompat puluhan sampai 100' },
+    ],
+  },
+  pecahan: {
+    id: 'pecahan',
+    kind: 'fraction',
+    title: 'Pecahan',
+    icon: '🍕',
+    color: 'var(--coral)',
+    tagline: 'Setengah, sepertiga, seperempat',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', type: 'identify', dens: [2, 3, 4], desc: 'Kenali ½, ⅓, ¼, ¾ …' },
+      { emoji: '🐥', name: 'Lumayan', type: 'color', dens: [2, 3, 4, 6, 8], desc: 'Warnai pizza sesuai pecahan' },
+      { emoji: '🦊', name: 'Sedang', type: 'identify', dens: [5, 6, 8], desc: 'Kenali pecahan sampai perdelapan' },
+      { emoji: '🦁', name: 'Sulit', type: 'compareSame', desc: 'Bandingkan pecahan yang mirip' },
+      { emoji: '🐉', name: 'Jago', type: 'compareMixed', desc: 'Bandingkan pecahan berbeda, ada yang senilai' },
     ],
   },
   nilai: {
@@ -147,6 +192,21 @@ export const MODES = {
         digits: 3,
         desc: 'Semua operasi',
       },
+    ],
+  },
+  uang: {
+    id: 'uang',
+    kind: 'money',
+    title: 'Uang & Belanja',
+    icon: '🪙',
+    color: '#d48f00',
+    tagline: 'Hitung harga dan kembalian',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', type: 'count', desc: 'Hitung jumlah uang' },
+      { emoji: '🐥', name: 'Lumayan', type: 'pay', desc: 'Bayar dengan uang pas' },
+      { emoji: '🦊', name: 'Sedang', type: 'total', desc: 'Total harga 2 barang' },
+      { emoji: '🦁', name: 'Sulit', type: 'change', desc: 'Hitung uang kembalian' },
+      { emoji: '🐉', name: 'Jago', type: 'shop', desc: 'Belanja: total lalu kembalian' },
     ],
   },
 };

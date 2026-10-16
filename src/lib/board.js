@@ -65,6 +65,9 @@ function buildAddition(operands) {
     numbers,
     values: operands,
     helper: { type: 'cycle', from: 1, max: operands.length - 1 },
+    helperName: 'simpan',
+    // simpanan ke kolom paling kiri langsung turun, jadi boleh tidak ditulis (mis. 7 + 5 = 12)
+    helperOptional: [`c${cols - 1}`],
     rows: [answerRow(0, 0, cols - 1, total, { lineBefore: true })],
     steps: additionSteps(operands, 0, cols),
   };
@@ -129,6 +132,7 @@ function buildSubtraction(operands) {
     numbers,
     values: operands,
     helper: { type: 'lend' },
+    helperName: 'pinjam',
     rows: [row],
     steps,
   };
@@ -197,6 +201,8 @@ function buildMultiplication([a, b]) {
     numbers: [A, B],
     values: [a, b],
     helper: { type: 'type', from: 1 },
+    // pada pengali 2 digit lingkaran simpanan dipakai ulang tiap baris, jadi tidak dicek
+    helperName: multi ? null : 'simpan',
     rows,
     steps,
   };
@@ -244,5 +250,105 @@ export function buildDivision(dividend, divisor) {
     steps.push({ col: i, text, set });
   });
 
-  return { digits: D, divisor, rows: [row], steps };
+  // angka depan yang terlalu kecil (mis. 1 pada 15 : 3) boleh langsung dibaca 15 tanpa menulis sisa
+  const helperOptional = range(lead).map((i) => `r${i + 1}`);
+  return { digits: D, divisor, rows: [row], steps, helperName: 'sisa', helperOptional };
+}
+
+/**
+ * Pembagian bersusun panjang (porogapit dengan baris pengurangan), mis. 432 : 12.
+ * Kolom i dihitung dari kiri bilangan yang dibagi. Baris kerja di bawahnya ('lines'):
+ *   prod  hasil kali pembagi × angka hasil bagi, diberi tanda − dan garis
+ *   rest  hasil pengurangan, ditambah angka yang diturunkan
+ * Kunci kotak: q{i} untuk hasil bagi, w{baris}_{i} untuk baris kerja.
+ */
+export function buildLongDivision(dividend, divisor) {
+  const D = String(dividend).split('').map(Number);
+  const n = D.length;
+  const rows = []; // urutan pengerjaan, untuk BoardState
+  const lines = [];
+  const steps = [];
+  const key = (l, c) => `w${l.idx}_${c}`;
+  const putNum = (l, value, to, set) => digitsOf(value).forEach((d, j) => (set[key(l, to - j)] = d));
+
+  // ambil angka dari kiri sampai cukup untuk dibagi
+  let s = 0;
+  let cur = D[0];
+  while (cur < divisor && s < n - 1) cur = cur * 10 + D[++s];
+
+  let rest = null;
+  for (let i = s; i < n; i++) {
+    const last = i === n - 1;
+    if (i > s) {
+      cur = cur * 10 + D[i];
+      rest.to = i;
+      rest.value = cur;
+      steps.push({ col: i, text: `Turunkan angka ${D[i]} ke bawah, jadi ${cur}.`, set: { [key(rest, i)]: D[i] } });
+    }
+
+    const qd = Math.floor(cur / divisor);
+    const qk = `q${i}`;
+    rows.push({ keys: [qk], order: [qk], cells: { [qk]: { exp: qd, lead: false, pos: i } } });
+    const left = cur % divisor;
+    const done = last
+      ? ` Tidak ada angka lagi yang bisa diturunkan, jadi ${left ? `sisanya ${left}` : 'pembagiannya habis, tidak ada sisa'}.`
+      : '';
+
+    if (qd === 0) {
+      steps.push({ col: i, text: `${cur} lebih kecil dari ${divisor}, jadi tulis 0 di atas.${done}`, set: { [qk]: 0 } });
+      continue;
+    }
+
+    const prod = qd * divisor;
+    const next = divisor * (qd + 1);
+    steps.push({
+      col: i,
+      text:
+        `${cur} : ${divisor}. Cari ${divisor} × berapa yang paling dekat dengan ${cur} tapi tidak lebih: ` +
+        `${divisor} × ${qd} = ${prod}${qd < 9 ? `, sedangkan ${divisor} × ${qd + 1} = ${next} terlalu besar` : ''}. Tulis ${qd} di atas.`,
+      set: { [qk]: qd },
+    });
+
+    const pl = { idx: lines.length, kind: 'prod', from: i - String(prod).length + 1, to: i, value: prod };
+    lines.push(pl);
+    const pset = {};
+    putNum(pl, prod, i, pset);
+    steps.push({ col: i, text: `${divisor} × ${qd} = ${prod}. Tulis ${prod} di bawah ${cur}, lalu kurangkan.`, set: pset });
+
+    const rem = cur - prod;
+    rest = { idx: lines.length, kind: 'rest', from: i - String(rem).length + 1, remTo: i, to: i, value: rem };
+    lines.push(rest);
+    const rset = {};
+    putNum(rest, rem, i, rset);
+    steps.push({ col: i, text: `${cur} − ${prod} = ${rem}.${done}`, set: rset });
+    rows.push(pl, rest);
+    cur = rem;
+  }
+
+  // isi kotak tiap baris kerja setelah panjang akhirnya diketahui
+  for (const l of lines) {
+    const ds = digitsOf(l.value);
+    l.from = Math.min(l.from, l.to - ds.length + 1);
+    const cols = range(l.to - l.from + 1).map((j) => l.to - j); // kanan → kiri
+    l.keys = cols.map((c) => key(l, c));
+    l.cells = Object.fromEntries(
+      cols.map((c) => [key(l, c), { exp: ds[l.to - c] ?? 0, lead: l.to - c >= ds.length, pos: c }]),
+    );
+    // sisa ditulis dari kanan ke kiri, angka yang diturunkan dari kiri ke kanan
+    l.order =
+      l.kind === 'rest'
+        ? [...cols.filter((c) => c <= l.remTo), ...cols.filter((c) => c > l.remTo).reverse()].map((c) => key(l, c))
+        : l.keys;
+  }
+
+  return {
+    digits: D,
+    divisor,
+    qFrom: s,
+    lines,
+    rows,
+    steps,
+    quotient: Math.floor(dividend / divisor),
+    remainder: dividend % divisor,
+  };
 }

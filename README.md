@@ -10,16 +10,22 @@ Aplikasi web (frontend saja, Svelte 5 + Vite) untuk anak belajar berhitung denga
 - **Penjumlahan:** isi jawaban digit demi digit dari kanan. Ketuk lingkaran di atas kolom untuk menyimpan 1 (atau 2 bila ada 3 bilangan).
 - **Pengurangan:** ketuk lingkaran di atas angka untuk meminjam 1 darinya. Angkanya dicoret dan nilai barunya muncul di atas. Pinjaman berantai dari angka 0 juga didukung.
 - **Perkalian:** 1 digit × 1 digit sampai 3 digit × 2 digit, lengkap dengan baris-baris perkalian dan penjumlahannya.
-- **Pembagian:** pembagian bersusun pendek (porogapit), dengan sisa kecil ditulis di depan angka berikutnya.
+- **Pembagian:** pembagian bersusun pendek, dengan sisa kecil ditulis di depan angka berikutnya.
+- **Pembagian panjang:** porogapit lengkap (bagi, kali, kurangkan, turunkan), sampai 4 digit ÷ 2 digit dan dengan sisa akhir.
+
+Kalau jawabannya benar tapi simpanan, pinjaman, atau sisa kecilnya tidak ditulis, burung hantu memberi teguran lembut dan lingkarannya berkedip. Teguran hanya muncul sekali, dan bintang tetap didapat.
 
 **Mengenal bilangan**
+- **Garis bilangan:** katak 🐸 melompat di garis bilangan untuk penjumlahan, pengurangan, perkalian sebagai lompatan sama jauh, dan lompatan puluhan sampai 100.
 - **Nilai tempat:** menghitung balok ratusan/puluhan/satuan, menyusun balok sesuai bilangan, dan menentukan nilai suatu angka (sampai ribuan).
 - **Perbandingan:** pilih lebih kecil (<), sama dengan (=), atau lebih besar (>).
 - **Mengurutkan:** geser kartu bilangan (drag & drop, juga dengan sentuhan) sampai urut.
+- **Pecahan:** mengenali pecahan pada pizza 🍕, mewarnai potongan sesuai pecahan, dan membandingkan pecahan (termasuk yang senilai, misalnya ½ = 2/4).
 
 **Tantangan**
 - **Bandingkan hasil:** misalnya `3 + 4 ○ 2 + 6` atau `3 × 4 ○ 2 × 6`.
 - **Soal cerita:** baca ceritanya (bisa dibacakan), pilih operasi yang tepat, lalu kerjakan secara bersusun.
+- **Uang & belanja:** menghitung uang rupiah, membayar dengan uang pas, menghitung total belanja di warung, dan menghitung kembalian.
 
 ## Fitur belajar
 - 💡 **Petunjuk:** menyorot kolom yang sedang dikerjakan dan menjelaskan langkahnya, misalnya "7 + 5 = 12, tulis 2, simpan 1".

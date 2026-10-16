@@ -5,6 +5,10 @@
   import DivisionGame from './DivisionGame.svelte';
   import PlaceValueGame from './PlaceValueGame.svelte';
   import StoryGame from './StoryGame.svelte';
+  import LongDivisionGame from './LongDivisionGame.svelte';
+  import JumpGame from './JumpGame.svelte';
+  import FractionGame from './FractionGame.svelte';
+  import MoneyGame from './MoneyGame.svelte';
   import { TOTAL_ROUNDS } from '../lib/modes.js';
   import { pick } from '../lib/generate.js';
   import { confetti } from '../lib/confetti.js';
@@ -20,6 +24,10 @@
     sort: SortGame,
     place: PlaceValueGame,
     story: StoryGame,
+    longdiv: LongDivisionGame,
+    jump: JumpGame,
+    fraction: FractionGame,
+    money: MoneyGame,
   };
   const praises = ['Hebat!', 'Pintar!', 'Keren!', 'Luar biasa!', 'Mantap!', 'Jago!', 'Benar sekali!'];
   const cheers = ['🎉', '🥳', '🌟', '🚀', '🦄', '🐯', '🍭'];

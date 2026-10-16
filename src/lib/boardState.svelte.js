@@ -2,6 +2,23 @@ import { play } from './sound.js';
 
 const EMPTY = { text: '', kind: '' };
 
+// Teguran lembut kalau jawabannya benar tapi simpan/pinjam/sisa tidak ditulis dengan tepat.
+const NUDGES = {
+  simpan: {
+    missing: 'Tapi simpanannya belum ditulis. Tulis di lingkaran yang berkedip, lalu tekan Cek lagi.',
+    wrong: 'Tapi ada simpanan yang belum tepat. Perbaiki lingkaran yang berkedip, lalu tekan Cek lagi.',
+  },
+  pinjam: {
+    missing: 'Tapi kamu lupa menandai pinjamannya. Ketuk lingkaran yang berkedip, lalu tekan Cek lagi.',
+    wrong: 'Tapi ada pinjaman yang belum tepat. Periksa lingkaran yang berkedip, lalu tekan Cek lagi.',
+  },
+  sisa: {
+    missing: 'Tapi sisanya belum ditulis kecil di depan angka berikutnya. Tulis di lingkaran yang berkedip, lalu tekan Cek lagi.',
+    wrong: 'Tapi ada sisa yang belum tepat. Perbaiki lingkaran yang berkedip, lalu tekan Cek lagi.',
+  },
+};
+const blank = (v) => (v == null || v === false || v === 0 ? null : v);
+
 /** State interaktif papan bersusun: isi kotak, cek jawaban, petunjuk, dan lihat cara. */
 export class BoardState {
   vals = $state({});
@@ -14,8 +31,13 @@ export class BoardState {
   message = $state(EMPTY);
   attempts = $state(0);
   shake = $state(0);
+  nudged = $state(false);
   usedHelp = false;
   #lastInput;
+  #helperExpect = {};
+
+  /** Kotak bantuan yang perlu diperiksa, setelah anak ditegur. */
+  nudgeKeys = $derived(this.nudged && !this.solved ? this.#helperMismatch() : []);
 
   canCheck = $derived.by(() =>
     this.model.rows.every((row) => {
@@ -34,6 +56,18 @@ export class BoardState {
     this.onSolved = onSolved;
     this.cells = Object.assign({}, ...model.rows.map((r) => r.cells));
     this.cursor = this.#lastInput = model.rows[0].order[0];
+    // isi akhir kotak bantuan menurut langkah penyelesaian
+    if (model.helperName) {
+      const final = Object.assign({}, ...model.steps.map((s) => s.set));
+      for (const [k, v] of Object.entries(final)) if (!(k in this.cells)) this.#helperExpect[k] = v;
+    }
+  }
+
+  #helperMismatch() {
+    if (!this.model.helperName) return [];
+    const keys = new Set([...Object.keys(this.#helperExpect), ...Object.keys(this.vals).filter((k) => !this.isInput(k))]);
+    const optional = this.model.helperOptional ?? [];
+    return [...keys].filter((k) => !optional.includes(k) && blank(this.vals[k]) !== blank(this.#helperExpect[k]));
   }
 
   get locked() {
@@ -128,6 +162,15 @@ export class BoardState {
     }
     this.help = null;
     if (ok) {
+      const miss = this.#helperMismatch();
+      if (miss.length && !this.nudged) {
+        // cukup sekali: kalau setelah ditegur tetap begitu, jawaban tetap diterima
+        this.nudged = true;
+        const text = NUDGES[this.model.helperName][miss.every((k) => blank(this.vals[k]) == null) ? 'missing' : 'wrong'];
+        this.message = { text: `Jawabanmu sudah benar! 👍 ${text}`, kind: 'nudge' };
+        play('pop');
+        return;
+      }
       this.solved = true;
       this.message = EMPTY;
       play('correct');

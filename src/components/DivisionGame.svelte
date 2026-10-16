@@ -83,6 +83,7 @@
               class="rem"
               class:on={board.vals[k] != null}
               class:active={board.cursor === k}
+              class:nudge-ring={board.nudgeKeys.includes(k)}
               onclick={() => board.select(k)}
               aria-label="Tulis sisa"
             >

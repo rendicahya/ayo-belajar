@@ -17,9 +17,19 @@ export function terbilang(n) {
   return part(1e6, 'juta');
 }
 
+/** 1/2 → "setengah", 2/3 → "dua pertiga" */
+export function fractionWords(k, d) {
+  if (k === 1 && d === 2) return 'setengah';
+  return `${k === 1 ? 'se' : `${terbilang(k)} `}per${terbilang(d)}`;
+}
+
 /** Ubah teks berisi angka & simbol menjadi kalimat yang enak dibacakan. */
 export function toSpeech(text) {
+  const num = (s) => terbilang(Number(s.replace(/\./g, '')));
   return String(text)
+    .replace(/Rp\s?(\d{1,3}(?:\.\d{3})+|\d+)/g, (_, m) => ` ${num(m)} rupiah `)
+    .replace(/\d{1,3}(?:\.\d{3})+/g, (m) => ` ${num(m)} `)
+    .replace(/(\d+)\/(\d+)/g, (_, k, d) => ` ${fractionWords(Number(k), Number(d))} `)
     .replace(/\d+/g, (m) => ` ${terbilang(Number(m))} `)
     .replace(/×/g, ' kali ')
     .replace(/−/g, ' kurang ')

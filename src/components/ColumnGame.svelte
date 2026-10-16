@@ -94,6 +94,7 @@
           <button
             class="bubble"
             class:on={board.vals[k]}
+            class:nudge-ring={board.nudgeKeys.includes(k)}
             onclick={() => board.cycle(k, helper.max)}
             aria-label="Simpan angka di kolom ini"
           >
@@ -104,13 +105,20 @@
             class="bubble"
             class:on={board.vals[k]}
             class:active={board.cursor === k}
+            class:nudge-ring={board.nudgeKeys.includes(k)}
             onclick={() => board.select(k)}
             aria-label="Tulis angka simpanan"
           >
             {board.vals[k] ?? ''}
           </button>
         {:else if helper.type === 'lend' && p >= 1 && p < top.length}
-          <button class="bubble lend" class:on={lent(p)} onclick={() => toggleLend(p)} aria-label="Pinjam 1 dari angka ini">
+          <button
+            class="bubble lend"
+            class:on={lent(p)}
+            class:nudge-ring={board.nudgeKeys.includes(`l${p}`)}
+            onclick={() => toggleLend(p)}
+            aria-label="Pinjam 1 dari angka ini"
+          >
             {lent(p) ? effective(p) : ''}
           </button>
         {/if}

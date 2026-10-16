@@ -110,6 +110,22 @@ export function genDivision({ digits, clean, minDiv = 2, maxDiv = 9 }) {
   }
 }
 
+/** Pembagian bersusun panjang: hasil bagi minimal 2 digit supaya ada beberapa langkah. */
+export function genLongDivision({ digits, divMin, divMax, rem }) {
+  for (;;) {
+    const divisor = rand(divMin, divMax);
+    let dividend;
+    if (rem === 'none') {
+      const q = rand(Math.ceil(10 ** (digits - 1) / divisor), Math.floor((10 ** digits - 1) / divisor));
+      dividend = q * divisor;
+    } else dividend = randWithDigits(digits);
+    const remainder = dividend % divisor;
+    const answer = Math.floor(dividend / divisor);
+    if (answer < 10 || (rem === 'yes' && !remainder)) continue;
+    return { dividend, divisor, answer, remainder };
+  }
+}
+
 export function genCompare({ digits, close }) {
   const a = randWithDigits(digits, digits === 1);
   if (Math.random() < 0.2) return { a, b: a };
@@ -293,4 +309,155 @@ export function genStory({ ops, digits }) {
     b = problem.divisor;
   }
   return { op, problem, emoji, text: pick(STORIES[op])(a, b, A, B, item) };
+}
+
+// ---------- Uang & belanja ----------
+
+export const rupiah = (n) => `Rp${String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
+
+const SHOP = [
+  ['Roti', '🍞'],
+  ['Susu', '🥛'],
+  ['Cokelat', '🍫'],
+  ['Permen', '🍬'],
+  ['Pisang', '🍌'],
+  ['Es krim', '🍦'],
+  ['Jus', '🧃'],
+  ['Pensil', '✏️'],
+  ['Buku', '📒'],
+  ['Biskuit', '🍪'],
+  ['Apel', '🍎'],
+  ['Telur', '🥚'],
+  ['Donat', '🍩'],
+  ['Jagung', '🌽'],
+  ['Semangka', '🍉'],
+  ['Bola', '⚽'],
+  ['Krayon', '🖍️'],
+  ['Teh', '🍵'],
+];
+
+const shopItems = (n, minStep, maxStep) =>
+  shuffle(SHOP)
+    .slice(0, n)
+    .map(([name, emoji]) => ({ name, emoji, price: rand(minStep, maxStep) * 500 }));
+
+const noteAbove = (total) => [5000, 10000, 20000, 50000, 100000].find((v) => v > total);
+
+export function genMoney({ type }) {
+  switch (type) {
+    case 'count': {
+      const pieces = Array.from({ length: rand(2, 4) }, () => pick([500, 1000, 2000, 5000])).sort((a, b) => b - a);
+      return { pieces, answers: [sum(pieces)] };
+    }
+    case 'pay': {
+      const [item] = shopItems(1, 3, 19);
+      return { items: [item], wallet: [500, 1000, 2000, 5000], answers: [item.price] };
+    }
+    case 'total': {
+      const items = shopItems(2, 1, 10);
+      return { items, answers: [sum(items.map((i) => i.price))] };
+    }
+    case 'change': {
+      const [item] = shopItems(1, 2, 19);
+      const note = item.price < 5000 && Math.random() < 0.5 ? 5000 : 10000;
+      return { items: [item], note, answers: [note - item.price] };
+    }
+    default: {
+      const items = shopItems(rand(2, 3), 2, 24);
+      const total = sum(items.map((i) => i.price));
+      const note = noteAbove(total);
+      return { items, note, answers: [total, note - total] };
+    }
+  }
+}
+
+// ---------- Garis bilangan ----------
+
+export function genJump({ type, max, tick = 1 }) {
+  let start, hop, count, dir, text;
+  const t = type === 'mix' ? pick(['add', 'sub']) : type;
+  if (t === 'mul') {
+    hop = rand(2, 5);
+    count = rand(2, Math.floor(max / hop));
+    start = 0;
+    dir = 1;
+    text = `${count} × ${hop}`;
+  } else {
+    hop = tick;
+    dir = t === 'add' ? 1 : -1;
+    const steps = max / tick;
+    const a = t === 'add' ? rand(0, steps - 1) : rand(1, steps);
+    count = t === 'add' ? rand(1, Math.min(9, steps - a)) : rand(1, Math.min(9, a));
+    start = a * tick;
+    text = `${start} ${t === 'add' ? '+' : '−'} ${count * tick}`;
+  }
+  const answer = start + dir * hop * count;
+  // pilihan pengecoh: meleset satu-dua lompatan
+  const opts = new Set([answer]);
+  const near = t === 'mul' ? [-hop, hop, -1, 1] : shuffle([-1, 1, -2, 2]).map((x) => x * tick);
+  for (const d of near) if (opts.size < 4 && answer + d >= 0 && answer + d <= max) opts.add(answer + d);
+  for (let v = 0; opts.size < 4 && v <= max; v += tick) opts.add(v);
+  return { start, hop, count, dir, answer, text, max, tick, choices: [...opts].sort((x, y) => x - y) };
+}
+
+// ---------- Pecahan ----------
+
+const fr = (k, d) => ({ k, d });
+const sameValue = (a, b) => a.k * b.d === b.k * a.d;
+
+export function genFraction({ type, dens }) {
+  if (type === 'identify' || type === 'color') {
+    const d = pick(dens);
+    const target = fr(rand(1, d - 1), d);
+    if (type === 'color') return { target };
+    const cands = shuffle([
+      fr(d - target.k, d),
+      fr(target.k, d + 1),
+      fr(target.k, d - 1),
+      fr(Math.min(target.k + 1, d), d),
+      fr(Math.max(target.k - 1, 1), d),
+      fr(1, d),
+      fr(target.k, d + 2),
+    ]);
+    const choices = [target];
+    for (const c of cands) {
+      if (choices.length >= 4) break;
+      if (c.k < 1 || c.k >= c.d || c.d > 12) continue;
+      if (choices.some((x) => sameValue(x, c))) continue;
+      choices.push(c);
+    }
+    return { target, choices: shuffle(choices) };
+  }
+
+  let a, b;
+  if (type === 'compareSame') {
+    if (Math.random() < 0.5) {
+      const d = pick([3, 4, 5, 6, 8]);
+      a = fr(rand(1, d - 1), d);
+      b = Math.random() < 0.15 ? { ...a } : fr(rand(1, d - 1), d);
+    } else {
+      // pecahan satuan: makin banyak potongan, makin kecil tiap potongan
+      const [x, y] = shuffle([2, 3, 4, 5, 6, 8]);
+      a = fr(1, x);
+      b = Math.random() < 0.15 ? fr(1, x) : fr(1, y);
+    }
+  } else if (Math.random() < 0.3) {
+    const pairs = [
+      [fr(1, 2), fr(2, 4)],
+      [fr(1, 2), fr(3, 6)],
+      [fr(1, 2), fr(4, 8)],
+      [fr(1, 3), fr(2, 6)],
+      [fr(2, 3), fr(4, 6)],
+      [fr(1, 4), fr(2, 8)],
+      [fr(3, 4), fr(6, 8)],
+    ];
+    [a, b] = shuffle(pick(pairs));
+  } else {
+    do {
+      const [d1, d2] = [pick([2, 3, 4, 6, 8]), pick([2, 3, 4, 6, 8])];
+      a = fr(rand(1, d1 - 1), d1);
+      b = fr(rand(1, d2 - 1), d2);
+    } while (a.d === b.d || sameValue(a, b));
+  }
+  return { a, b };
 }
