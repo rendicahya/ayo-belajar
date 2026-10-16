@@ -17,21 +17,21 @@
 <style>
   .pad {
     display: grid;
-    gap: 14px;
+    gap: 12px;
     width: min(100%, 380px);
   }
 
   .keys {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
+    gap: 8px;
   }
 
   .key {
-    aspect-ratio: 1;
+    height: clamp(48px, 7.5dvh, 68px);
     border-radius: 18px;
     background: var(--card);
-    font-size: 2rem;
+    font-size: 1.9rem;
     font-weight: 600;
     box-shadow: 0 5px 0 var(--line);
     border: 3px solid var(--k);
@@ -43,7 +43,7 @@
     --k: var(--coral);
   }
   .key:nth-child(5n + 2) {
-    --k: #e09a00;
+    --k: #d18f00;
   }
   .key:nth-child(5n + 3) {
     --k: var(--lime);
@@ -67,6 +67,6 @@
   .row {
     display: grid;
     grid-template-columns: 1fr 1.4fr;
-    gap: 12px;
+    gap: 10px;
   }
 </style>

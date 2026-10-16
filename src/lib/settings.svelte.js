@@ -1,5 +1,8 @@
+import { STICKERS, STARS_PER_STICKER } from './stickers.js';
+
 const SETTINGS_KEY = 'jb-settings';
 const BEST_KEY = 'jb-best';
+const PROGRESS_KEY = 'jb-progress';
 
 function load(key) {
   try {
@@ -34,4 +37,46 @@ export function saveBest(key, stars) {
     best[key] = stars;
     save(BEST_KEY, best);
   }
+}
+
+// ---- bintang, stiker, dan hari latihan berturut-turut ----
+
+export const progress = $state({ totalStars: 0, days: [], ...load(PROGRESS_KEY) });
+
+const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+export function unlockedStickers() {
+  return Math.min(STICKERS.length, Math.floor(progress.totalStars / STARS_PER_STICKER));
+}
+
+/** Hari berturut-turut sampai hari ini (atau kemarin, kalau hari ini belum latihan). */
+export function streak() {
+  const days = new Set(progress.days);
+  const d = new Date();
+  if (!days.has(dayKey(d))) d.setDate(d.getDate() - 1);
+  let n = 0;
+  while (days.has(dayKey(d))) {
+    n++;
+    d.setDate(d.getDate() - 1);
+  }
+  return n;
+}
+
+export const practicedToday = () => progress.days.includes(dayKey(new Date()));
+
+/** Catat satu soal selesai. Mengembalikan stiker baru / info hari latihan bila ada. */
+export function recordSolve(star) {
+  const result = { sticker: null, streak: 0 };
+  const today = dayKey(new Date());
+  if (!progress.days.includes(today)) {
+    progress.days = [...progress.days, today].slice(-400);
+    result.streak = streak();
+  }
+  if (star) {
+    const before = unlockedStickers();
+    progress.totalStars++;
+    if (unlockedStickers() > before) result.sticker = STICKERS[before];
+  }
+  save(PROGRESS_KEY, progress);
+  return result;
 }

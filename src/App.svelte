@@ -4,12 +4,14 @@
   import Home from './components/Home.svelte';
   import LevelSelect from './components/LevelSelect.svelte';
   import Game from './components/Game.svelte';
+  import StickerAlbum from './components/StickerAlbum.svelte';
 
   let hash = $state(location.hash);
 
   // #/ → beranda, #/tambah → pilih level, #/tambah/2 → main level 2
   const route = $derived.by(() => {
     const [modeId, levelNo] = hash.replace(/^#\/?/, '').split('/');
+    if (modeId === 'stiker') return { page: 'stickers', back: '#/', title: 'Album Stiker', icon: '📒' };
     const mode = MODES[modeId];
     if (!mode) return { page: 'home' };
     const levelIndex = Number(levelNo) - 1;
@@ -31,7 +33,10 @@
   <div class="title">
     {#if route.mode}
       <span class="badge" style="--c:{route.mode.color}">{route.mode.icon}</span>
-      {route.mode.title}
+      <span class="name">{route.mode.title}</span>
+    {:else if route.title}
+      <span class="badge" style="--c:var(--sun)">{route.icon}</span>
+      <span class="name">{route.title}</span>
     {/if}
   </div>
   <button
@@ -49,6 +54,8 @@
     <div class="page">
       {#if route.page === 'home'}
         <Home />
+      {:else if route.page === 'stickers'}
+        <StickerAlbum />
       {:else if route.page === 'levels'}
         <LevelSelect mode={route.mode} />
       {:else}
@@ -127,9 +134,47 @@
     animation: fade 0.25s ease-out;
   }
 
+  .name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  header {
+    padding-top: max(14px, env(safe-area-inset-top));
+  }
+
+  main {
+    padding-bottom: max(40px, env(safe-area-inset-bottom));
+  }
+
   @media (max-width: 480px) {
+    header {
+      gap: 8px;
+      padding-inline: 12px;
+    }
+
+    main {
+      padding-inline: 12px;
+      padding-top: 12px;
+    }
+
+    .round {
+      width: 44px;
+      height: 44px;
+      font-size: 1.35rem;
+    }
+
     .title {
-      font-size: 1.2rem;
+      font-size: 1.15rem;
+      gap: 8px;
+    }
+
+    .badge {
+      min-width: 34px;
+      height: 34px;
+      font-size: 1rem;
+      border-radius: 12px;
     }
   }
 </style>

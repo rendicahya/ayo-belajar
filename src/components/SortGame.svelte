@@ -3,6 +3,7 @@
   import { flip } from 'svelte/animate';
   import { genSort } from '../lib/generate.js';
   import { play } from '../lib/sound.js';
+  import { speak } from '../lib/speech.js';
 
   let props = $props();
   const level = untrack(() => props.level);
@@ -41,13 +42,15 @@
       color: item.color,
       x: e.clientX,
       y: e.clientY,
+      sx: e.clientX,
+      sy: e.clientY,
+      moved: false,
       dx: e.clientX - r.left,
       dy: e.clientY - r.top,
       w: r.width,
       h: r.height,
     };
     reset();
-    play('tap');
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);
     window.addEventListener('pointercancel', up);
@@ -57,6 +60,10 @@
     if (!drag) return;
     drag.x = e.clientX;
     drag.y = e.clientY;
+    // ketukan tanpa geser = bacakan bilangannya
+    if (!drag.moved && Math.hypot(drag.x - drag.sx, drag.y - drag.sy) < 8) return;
+    if (!drag.moved) play('tap');
+    drag.moved = true;
     // Pakai offsetLeft/Top (posisi layout), bukan getBoundingClientRect, supaya
     // animasi flip yang sedang berjalan tidak membuat urutan bolak-balik.
     const base = listEl.getBoundingClientRect();
@@ -76,7 +83,8 @@
   }
 
   function up() {
-    if (drag) play('pop');
+    if (drag?.moved) play('pop');
+    else if (drag) speak(drag.value);
     drag = null;
     stopListening();
   }
@@ -126,7 +134,7 @@
 
 <svelte:window onkeydown={(e) => e.key === 'Enter' && e.target.tagName !== 'BUTTON' && check()} />
 
-<p class="hint">Geser kartunya sampai urut dari yang <b>{asc ? 'terkecil' : 'terbesar'}</b> ke yang <b>{asc ? 'terbesar' : 'terkecil'}</b>.</p>
+<p class="hint">Geser kartunya sampai urut dari yang <b>{asc ? 'terkecil' : 'terbesar'}</b> ke yang <b>{asc ? 'terbesar' : 'terkecil'}</b>.<span class="sub">🔊 Ketuk kartu untuk mendengar bilangannya.</span></p>
 
 <div class="scale" aria-hidden="true">
   <span>{asc ? '🐭 kecil' : '🐘 besar'}</span>
@@ -139,7 +147,7 @@
     <button
       class="card"
       animate:flip={{ duration: 180 }}
-      class:placeholder={drag?.id === item.id}
+      class:placeholder={drag?.moved && drag.id === item.id}
       class:ok={marks[item.id] === 'ok'}
       class:bad={marks[item.id] === 'bad'}
       style="--c:{item.color}"
@@ -153,7 +161,7 @@
   {/each}
 </div>
 
-{#if drag}
+{#if drag?.moved}
   <div
     class="card ghost"
     style="--c:{drag.color}; left:{drag.x - drag.dx}px; top:{drag.y - drag.dy}px; width:{drag.w}px; height:{drag.h}px"
@@ -169,6 +177,11 @@
 <p class="msg {message.kind}" aria-live="polite">{message.text}</p>
 
 <style>
+  .sub {
+    display: block;
+    font-size: 0.9em;
+  }
+
   .scale {
     display: flex;
     align-items: center;
@@ -213,7 +226,7 @@
     display: grid;
     place-items: center;
     width: clamp(78px, 22vw, 110px);
-    height: clamp(92px, 26vw, 128px);
+    height: clamp(84px, 24vw, 128px);
     border-radius: 22px;
     background: var(--c);
     color: #fff;

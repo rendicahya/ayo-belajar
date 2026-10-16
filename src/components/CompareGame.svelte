@@ -1,12 +1,19 @@
 <script>
   import { untrack } from 'svelte';
-  import { genCompare } from '../lib/generate.js';
+  import { genCompare, genExprCompare } from '../lib/generate.js';
   import { play } from '../lib/sound.js';
+  import { speak } from '../lib/speech.js';
 
   let props = $props();
+  const level = untrack(() => props.level);
 
-  const { a, b } = genCompare(untrack(() => props.level));
-  const correct = a < b ? '<' : a > b ? '>' : '=';
+  const { left, right } = level.expr
+    ? genExprCompare(level)
+    : (({ a, b }) => ({ left: { text: String(a), value: a }, right: { text: String(b), value: b } }))(
+        genCompare(level),
+      );
+  const isExpr = Boolean(level.expr);
+  const correct = left.value < right.value ? '<' : left.value > right.value ? '>' : '=';
   const choices = [
     { sym: '<', label: 'Lebih kecil', phrase: 'lebih kecil dari', key: ['<', ','] },
     { sym: '=', label: 'Sama dengan', phrase: 'sama dengan', key: ['='] },
@@ -44,18 +51,29 @@
       choose(c);
     }
   }
+
+  const sentence = $derived(
+    solved
+      ? isExpr
+        ? `${left.text} = ${left.value}, ${right.text} = ${right.value}. Jadi ${left.text} ${choices.find((c) => c.sym === correct).phrase} ${right.text}.`
+        : `${left.text} ${choices.find((c) => c.sym === correct).phrase} ${right.text}`
+      : '',
+  );
 </script>
 
 <svelte:window {onkeydown} />
 
-<p class="hint">Bilangan kiri <b>dibanding</b> bilangan kanan, tandanya apa?</p>
+<p class="hint">
+  {#if isExpr}Hitung dulu kedua sisi, lalu pilih tandanya.{:else}Bilangan kiri <b>dibanding</b> bilangan kanan, tandanya apa?{/if}
+  <span class="sub">🔊 Ketuk bilangan untuk mendengarnya.</span>
+</p>
 
-<div class="duel">
-  <div class="num" style="--c:var(--coral)">{a}</div>
+<div class="duel" class:expr={isExpr}>
+  <button class="num" style="--c:var(--coral)" onclick={() => speak(left.text)}>{left.text}</button>
   {#key shake}
     <div class="slot" class:ok={solved} class:bad={shown && !solved}>{shown ?? '?'}</div>
   {/key}
-  <div class="num" style="--c:var(--sky)">{b}</div>
+  <button class="num" style="--c:var(--sky)" onclick={() => speak(right.text)}>{right.text}</button>
 </div>
 
 <div class="choices">
@@ -74,7 +92,7 @@
 </div>
 
 {#if solved}
-  <p class="msg ok">{a} {choices.find((c) => c.sym === correct).phrase} {b}</p>
+  <p class="msg ok">{sentence}</p>
 {:else if wrong.length}
   <p class="msg bad">Belum tepat, coba tanda yang lain! 💪</p>
 {:else}
@@ -82,39 +100,50 @@
 {/if}
 
 <style>
+  .sub {
+    display: block;
+    font-size: 0.9em;
+  }
+
   .duel {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: clamp(10px, 3vw, 28px);
-    margin: 28px 0;
+    gap: clamp(8px, 3vw, 28px);
+    margin: 24px 0;
   }
 
   .num {
-    min-width: clamp(90px, 26vw, 220px);
-    padding: 18px 16px;
+    flex: 0 1 auto;
+    min-width: clamp(84px, 26vw, 220px);
+    padding: 16px 12px;
     border-radius: var(--radius);
     background: var(--card);
     border: 4px solid var(--c);
     box-shadow: var(--shadow);
     text-align: center;
-    font-size: clamp(2.4rem, 10vw, 5rem);
+    font-size: clamp(2.2rem, 10vw, 5rem);
     font-weight: 600;
     line-height: 1.1;
     color: var(--c);
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .expr .num {
+    font-size: clamp(1.6rem, 6.5vw, 3.4rem);
   }
 
   .slot {
     display: grid;
     place-items: center;
     flex: none;
-    width: clamp(64px, 16vw, 110px);
-    height: clamp(64px, 16vw, 110px);
+    width: clamp(58px, 15vw, 110px);
+    height: clamp(58px, 15vw, 110px);
     border-radius: 50%;
     border: 4px dashed #c9c3dd;
     background: var(--card);
-    font-size: clamp(2.2rem, 9vw, 4rem);
+    font-size: clamp(2rem, 9vw, 4rem);
     font-weight: 700;
     color: var(--muted);
   }
@@ -133,18 +162,31 @@
     animation: shake 0.4s;
   }
 
+  /* Ekspresi panjang di layar sempit: susun atas-bawah */
+  @media (max-width: 560px) {
+    .duel.expr {
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .expr .num {
+      width: min(100%, 300px);
+      font-size: 2.6rem;
+    }
+  }
+
   .choices {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 170px));
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
   }
 
   .choice {
     display: grid;
     justify-items: center;
     gap: 2px;
-    padding: 14px 8px;
+    padding: 12px 6px;
     border-radius: var(--radius);
     background: var(--grape);
     color: #fff;
@@ -182,23 +224,23 @@
   }
 
   .sym {
-    font-size: 2.6rem;
+    font-size: 2.4rem;
     font-weight: 700;
     line-height: 1;
   }
 
   .label {
     font-weight: 500;
-    font-size: clamp(0.9rem, 3.4vw, 1.1rem);
+    font-size: clamp(0.85rem, 3.4vw, 1.1rem);
   }
 
   .msg {
-    margin-top: 20px;
-    font-size: 1.4rem;
+    margin-top: 18px;
+    font-size: 1.25rem;
   }
 
   .tip {
-    margin-top: 20px;
+    margin-top: 18px;
     text-align: center;
     color: var(--muted);
   }

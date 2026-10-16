@@ -2,15 +2,25 @@
   import ColumnGame from './ColumnGame.svelte';
   import CompareGame from './CompareGame.svelte';
   import SortGame from './SortGame.svelte';
+  import DivisionGame from './DivisionGame.svelte';
+  import PlaceValueGame from './PlaceValueGame.svelte';
+  import StoryGame from './StoryGame.svelte';
   import { TOTAL_ROUNDS } from '../lib/modes.js';
   import { pick } from '../lib/generate.js';
   import { confetti } from '../lib/confetti.js';
   import { play } from '../lib/sound.js';
-  import { getBest, saveBest } from '../lib/settings.svelte.js';
+  import { getBest, saveBest, recordSolve } from '../lib/settings.svelte.js';
 
   let { mode, levelIndex } = $props();
 
-  const games = { column: ColumnGame, compare: CompareGame, sort: SortGame };
+  const games = {
+    column: ColumnGame,
+    division: DivisionGame,
+    compare: CompareGame,
+    sort: SortGame,
+    place: PlaceValueGame,
+    story: StoryGame,
+  };
   const praises = ['Hebat!', 'Pintar!', 'Keren!', 'Luar biasa!', 'Mantap!', 'Jago!', 'Benar sekali!'];
   const cheers = ['🎉', '🥳', '🌟', '🚀', '🦄', '🐯', '🍭'];
 
@@ -21,20 +31,24 @@
   let round = $state(1);
   let results = $state([]); // true = benar di percobaan pertama
   let phase = $state('play'); // play | celebrate | done
-  let praise = $state({ text: '', icon: '' });
+  let praise = $state({ text: '', icon: '', note: '' });
+  let reward = $state({ sticker: null, streak: 0 });
   let previousBest = $state(0);
   const stars = $derived(results.filter(Boolean).length);
 
-  function handleSolved(firstTry) {
+  function handleSolved(firstTry, info = {}) {
     results.push(firstTry);
+    reward = recordSolve(firstTry);
     praise = firstTry
-      ? { text: pick(praises), icon: pick(cheers) }
-      : { text: 'Benar!', icon: '👍' };
+      ? { text: pick(praises), icon: pick(cheers), note: 'Kamu dapat bintang! ⭐' }
+      : info.shown
+        ? { text: 'Sudah paham?', icon: '🦉', note: 'Sekarang kamu tahu caranya. Coba soal berikutnya sendiri, ya! 💪' }
+        : { text: 'Benar!', icon: '👍', note: 'Lain kali pasti bisa langsung benar 💪' };
     // beri waktu sebentar supaya anak melihat jawabannya berubah hijau
     setTimeout(() => {
       phase = 'celebrate';
       confetti();
-    }, 600);
+    }, info.shown ? 900 : 600);
   }
 
   function next() {
@@ -91,7 +105,7 @@
     {:else if previousBest > 0}
       <p class="record">Rekor terbaik: ⭐ {previousBest}</p>
     {/if}
-    <p class="hint">Bintang didapat kalau soal dijawab benar pada percobaan pertama.</p>
+    <p class="hint">Bintang didapat kalau soal dijawab benar pada percobaan pertama tanpa petunjuk. Kumpulkan 5 bintang untuk 1 stiker!</p>
     <div class="actions">
       <button class="btn" style="--c:var(--coral)" onclick={restart}>🔁 Main lagi</button>
       {#if levelIndex < mode.levels.length - 1}
@@ -111,10 +125,17 @@
     <div class="bubble" role="dialog" aria-live="polite">
       <div class="big">{praise.icon}</div>
       <h2>{praise.text}</h2>
-      {#if results.at(-1)}
-        <p>Kamu dapat bintang! ⭐</p>
-      {:else}
-        <p>Lain kali pasti bisa langsung benar 💪</p>
+      <p>{praise.note}</p>
+      {#if reward.sticker}
+        <div class="reward">
+          <span class="sticker">{reward.sticker.emoji}</span>
+          <span>Stiker baru: <b>{reward.sticker.name}</b>! Lihat di album 📒</span>
+        </div>
+      {/if}
+      {#if reward.streak > 1}
+        <div class="reward">🔥 <span>Hari ke-<b>{reward.streak}</b> berturut-turut latihan!</span></div>
+      {:else if reward.streak === 1}
+        <div class="reward">🔥 <span>Latihan pertama hari ini. Besok main lagi, ya!</span></div>
       {/if}
       <button class="btn" style="--c:var(--ok)" onclick={next}>
         {round < TOTAL_ROUNDS ? 'Lanjut ➜' : 'Lihat hasil 🏁'}
@@ -217,6 +238,22 @@
     font-size: 2.2rem;
     font-weight: 700;
     color: var(--ok);
+  }
+
+  .reward {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border-radius: 16px;
+    background: #fff3cc;
+    text-align: left;
+  }
+
+  .sticker {
+    font-size: 2.6rem;
+    line-height: 1;
+    animation: pop 0.5s ease-out;
   }
 
   .bubble p {

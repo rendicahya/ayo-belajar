@@ -8,6 +8,12 @@ const columnLevels = [
   { emoji: '🐉', name: 'Jago', count: 3, digits: 3 },
 ].map((l) => ({ ...l, desc: `${l.count} bilangan, ${l.digits} digit` }));
 
+export const GROUPS = [
+  { title: 'Berhitung Bersusun', modes: ['tambah', 'kurang', 'kali', 'bagi'] },
+  { title: 'Mengenal Bilangan', modes: ['nilai', 'banding', 'urut'] },
+  { title: 'Tantangan', modes: ['hasil', 'cerita'] },
+];
+
 export const MODES = {
   tambah: {
     id: 'tambah',
@@ -15,7 +21,7 @@ export const MODES = {
     title: 'Penjumlahan',
     icon: '+',
     color: 'var(--coral)',
-    tagline: 'Jumlahkan bersusun, simpan 1 ke kiri',
+    tagline: 'Bersusun, simpan 1 ke kiri',
     levels: columnLevels,
   },
   kurang: {
@@ -24,8 +30,53 @@ export const MODES = {
     title: 'Pengurangan',
     icon: '−',
     color: 'var(--sky)',
-    tagline: 'Kurangkan bersusun, pinjam 1 dari kiri',
+    tagline: 'Bersusun, pinjam 1 dari kiri',
     levels: columnLevels,
+  },
+  kali: {
+    id: 'kali',
+    kind: 'column',
+    title: 'Perkalian',
+    icon: '×',
+    color: 'var(--pink)',
+    tagline: 'Bersusun, simpan puluhannya',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', digits: 1, by: 1 },
+      { emoji: '🐥', name: 'Lumayan', digits: 2, by: 1 },
+      { emoji: '🦊', name: 'Sedang', digits: 3, by: 1 },
+      { emoji: '🦁', name: 'Sulit', digits: 2, by: 2 },
+      { emoji: '🐉', name: 'Jago', digits: 3, by: 2 },
+    ].map((l) => ({ ...l, desc: `${l.digits} digit × ${l.by} digit` })),
+  },
+  bagi: {
+    id: 'bagi',
+    kind: 'division',
+    title: 'Pembagian',
+    icon: '÷',
+    color: 'var(--teal)',
+    tagline: 'Bersusun pendek (porogapit)',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', digits: 2, clean: true, desc: '2 digit ÷ 1 digit, tanpa sisa' },
+      { emoji: '🐥', name: 'Lumayan', digits: 2, desc: '2 digit ÷ 1 digit, ada sisa di tengah' },
+      { emoji: '🦊', name: 'Sedang', digits: 3, desc: '3 digit ÷ 1 digit' },
+      { emoji: '🦁', name: 'Sulit', digits: 4, maxDiv: 5, desc: '4 digit ÷ 2 sampai 5' },
+      { emoji: '🐉', name: 'Jago', digits: 4, minDiv: 6, desc: '4 digit ÷ 6 sampai 9' },
+    ],
+  },
+  nilai: {
+    id: 'nilai',
+    kind: 'place',
+    title: 'Nilai Tempat',
+    icon: '🧱',
+    color: 'var(--orange)',
+    tagline: 'Ratusan, puluhan, satuan',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', type: 'count', digits: 2, desc: 'Hitung balok puluhan & satuan' },
+      { emoji: '🐥', name: 'Lumayan', type: 'count', digits: 3, desc: 'Hitung balok sampai ratusan' },
+      { emoji: '🦊', name: 'Sedang', type: 'build', digits: 3, desc: 'Susun balok sesuai bilangan' },
+      { emoji: '🦁', name: 'Sulit', type: 'value', digits: 3, desc: 'Nilai angka pada bilangan 3 digit' },
+      { emoji: '🐉', name: 'Jago', type: 'value', digits: 4, desc: 'Nilai angka sampai ribuan' },
+    ],
   },
   banding: {
     id: 'banding',
@@ -61,5 +112,41 @@ export const MODES = {
         l.order === 'asc' ? 'kecil → besar' : 'besar → kecil'
       }`,
     })),
+  },
+  hasil: {
+    id: 'hasil',
+    kind: 'compare',
+    title: 'Bandingkan Hasil',
+    icon: '⚖️',
+    color: 'var(--indigo)',
+    tagline: 'Hitung dulu, lalu bandingkan',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', expr: 'sum1', desc: 'Contoh: 3 + 4 ○ 8' },
+      { emoji: '🐥', name: 'Lumayan', expr: 'sumsum1', desc: 'Contoh: 3 + 4 ○ 2 + 6' },
+      { emoji: '🦊', name: 'Sedang', expr: 'sum2', desc: 'Contoh: 25 + 13 ○ 40' },
+      { emoji: '🦁', name: 'Sulit', expr: 'diffsum2', desc: 'Contoh: 52 − 17 ○ 20 + 14' },
+      { emoji: '🐉', name: 'Jago', expr: 'mul', desc: 'Contoh: 3 × 4 ○ 2 × 6' },
+    ],
+  },
+  cerita: {
+    id: 'cerita',
+    kind: 'story',
+    title: 'Soal Cerita',
+    icon: '📖',
+    color: 'var(--rose)',
+    tagline: 'Baca ceritanya, lalu hitung',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', ops: ['tambah', 'kurang'], digits: 1, desc: 'Tambah & kurang, 1 digit' },
+      { emoji: '🐥', name: 'Lumayan', ops: ['tambah', 'kurang'], digits: 2, desc: 'Tambah & kurang, 2 digit' },
+      { emoji: '🦊', name: 'Sedang', ops: ['tambah', 'kurang'], digits: 3, desc: 'Tambah & kurang, 3 digit' },
+      { emoji: '🦁', name: 'Sulit', ops: ['kali', 'bagi'], digits: 2, desc: 'Kali & bagi' },
+      {
+        emoji: '🐉',
+        name: 'Jago',
+        ops: ['tambah', 'kurang', 'kali', 'bagi'],
+        digits: 3,
+        desc: 'Semua operasi',
+      },
+    ],
   },
 };

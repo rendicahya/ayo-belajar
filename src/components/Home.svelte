@@ -1,10 +1,16 @@
 <script>
-  import { MODES } from '../lib/modes.js';
+  import { MODES, GROUPS } from '../lib/modes.js';
+  import { STICKERS } from '../lib/stickers.js';
+  import { progress, streak, practicedToday, unlockedStickers } from '../lib/settings.svelte.js';
 
   const letterColors = ['var(--coral)', 'var(--sun)', 'var(--lime)', 'var(--sky)', 'var(--grape)', 'var(--pink)'];
   const words = ['Jago', 'Berhitung'];
   let n = 0;
   const title = words.map((w) => [...w].map((ch) => ({ ch, color: letterColors[n % 6], delay: n++ * 0.08 })));
+
+  const days = $derived(streak());
+  const today = $derived(practicedToday());
+  const stickers = $derived(unlockedStickers());
 </script>
 
 <section class="hero">
@@ -20,27 +26,49 @@
   <p class="sub">Ayo belajar berhitung sambil bermain! 🎈</p>
 </section>
 
-<section class="modes">
-  {#each Object.values(MODES) as mode, i}
-    <a class="mode" href="#/{mode.id}" style="--c:{mode.color}; --tilt:{i % 2 ? 1.5 : -1.5}deg">
-      <span class="icon">{mode.icon}</span>
-      <span class="text">
+<section class="stats">
+  <div class="stat streak" class:lit={today}>
+    <span class="big">🔥</span>
+    <span>
+      {#if days > 0}
+        <b>{days} hari</b> berturut-turut
+        <small>{today ? 'Hari ini sudah latihan ✅' : 'Ayo latihan hari ini!'}</small>
+      {:else}
+        <b>Mulai latihan</b>
+        <small>Main tiap hari supaya apinya menyala</small>
+      {/if}
+    </span>
+  </div>
+  <a class="stat album" href="#/stiker">
+    <span class="big">📒</span>
+    <span>
+      <b>Stiker {stickers}/{STICKERS.length}</b>
+      <small>⭐ {progress.totalStars} bintang terkumpul</small>
+    </span>
+  </a>
+</section>
+
+{#each GROUPS as group}
+  <h2 class="group">{group.title}</h2>
+  <section class="modes">
+    {#each group.modes.map((id) => MODES[id]) as mode, i}
+      <a class="mode" href="#/{mode.id}" style="--c:{mode.color}; --tilt:{i % 2 ? 1.5 : -1.5}deg">
+        <span class="icon">{mode.icon}</span>
         <span class="name">{mode.title}</span>
         <span class="tagline">{mode.tagline}</span>
-      </span>
-      <span class="go" aria-hidden="true">➜</span>
-    </a>
-  {/each}
-</section>
+      </a>
+    {/each}
+  </section>
+{/each}
 
 <style>
   .hero {
     text-align: center;
-    padding: 18px 0 28px;
+    padding: 8px 0 18px;
   }
 
   h1 {
-    font-size: clamp(2.6rem, 11vw, 4.6rem);
+    font-size: clamp(2.5rem, 11vw, 4.6rem);
     font-weight: 700;
     line-height: 1.05;
     display: flex;
@@ -60,26 +88,78 @@
   }
 
   .sub {
-    margin-top: 12px;
+    margin-top: 10px;
+    font-size: 1.2rem;
+    color: var(--muted);
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .stat {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: var(--radius);
+    background: var(--card);
+    box-shadow: var(--shadow);
+    line-height: 1.2;
+  }
+
+  .stat small {
+    display: block;
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-top: 2px;
+  }
+
+  .stat .big {
+    font-size: 2.2rem;
+    line-height: 1;
+  }
+
+  .streak:not(.lit) .big {
+    filter: grayscale(1);
+    opacity: 0.5;
+  }
+
+  .streak.lit .big {
+    animation: bob 1.6s ease-in-out infinite;
+  }
+
+  .album:active {
+    transform: scale(0.98);
+  }
+
+  .group {
+    margin: 22px 4px 10px;
     font-size: 1.25rem;
+    font-weight: 600;
     color: var(--muted);
   }
 
   .modes {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
-    gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(min(46%, 200px), 1fr));
+    gap: 12px;
   }
 
   .mode {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    padding: 20px;
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: 4px;
+    padding: 16px 10px;
     border-radius: var(--radius);
     background: var(--card);
     box-shadow: var(--shadow);
     border: 3px solid transparent;
+    text-align: center;
     transition:
       transform 0.15s,
       border-color 0.15s;
@@ -91,42 +171,39 @@
   }
 
   .mode:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
   }
 
   .icon {
     display: grid;
     place-items: center;
-    flex: none;
-    width: 76px;
-    height: 76px;
+    width: 68px;
+    height: 68px;
+    margin-bottom: 4px;
     border-radius: 22px;
     background: var(--c);
     color: #fff;
-    font-size: 2.1rem;
+    font-size: 2rem;
     font-weight: 700;
     letter-spacing: -0.04em;
     box-shadow: inset 0 -6px 0 rgba(0, 0, 0, 0.15);
   }
 
-  .text {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-
   .name {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: 600;
+    line-height: 1.2;
   }
 
   .tagline {
     color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.25;
   }
 
-  .go {
-    font-size: 1.6rem;
-    color: var(--c);
+  @media (max-width: 420px) {
+    .stats {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

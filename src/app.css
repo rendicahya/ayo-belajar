@@ -10,6 +10,10 @@
   --lime: #5aae22;
   --grape: #8f4fd9;
   --pink: #ec4fa8;
+  --teal: #0f9b93;
+  --indigo: #5b5bd6;
+  --orange: #e2780c;
+  --rose: #d94a7b;
   --ok: #26a96c;
   --ok-soft: #d8f5e6;
   --bad: #e8435f;
@@ -51,6 +55,10 @@ button {
   border: none;
   background: none;
   padding: 0;
+  /* cegah zoom ketuk-ganda di HP */
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 a {
@@ -99,6 +107,11 @@ p {
   cursor: not-allowed;
 }
 
+.btn.small {
+  font-size: 1.05rem;
+  padding: 0.5em 1.1em;
+}
+
 .btn.light {
   background: var(--card);
   color: var(--ink);
@@ -111,6 +124,16 @@ p {
   font-size: 1.05rem;
   max-width: 34rem;
   margin: 0 auto;
+}
+
+@media (max-width: 480px) {
+  .hint {
+    font-size: 0.95rem;
+  }
+
+  .btn {
+    font-size: 1.1rem;
+  }
 }
 
 .msg {
