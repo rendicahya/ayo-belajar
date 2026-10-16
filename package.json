@@ -1,0 +1,22 @@
+{
+  "name": "jago-berhitung",
+  "version": "1.0.0",
+  "description": "Aplikasi belajar berhitung bersusun untuk anak",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rendicahya/jago-berhitung.git"
+  },
+  "homepage": "https://rendicahya.github.io/jago-berhitung/",
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "svelte": "^5.57.2",
+    "vite": "^8.3.4"
+  }
+}
