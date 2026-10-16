@@ -44,6 +44,17 @@ Kalau jawabannya benar tapi simpanan, pinjaman, atau sisa kecilnya tidak ditulis
 
 Setiap mode punya 5 level dengan 10 soal per sesi. Progres tersimpan di `localStorage` perangkat.
 
+## Rencana pengembangan
+
+Ide yang belum dikerjakan:
+- ⏱️ **Tantangan waktu:** menjawab sebanyak mungkin soal dalam 60 detik, dengan rekor pribadi.
+- 📈 **Halaman progres:** ringkasan per mode dan level, misalnya bintang, soal yang sering salah, dan grafik latihan per hari.
+- 👧 **Profil anak:** beberapa anak di satu perangkat, masing-masing dengan progres, stiker, dan hari berturut-turut sendiri.
+- 👨‍👩‍👧 **Mode orang tua:** dibuka dengan soal perkalian sederhana. Isinya laporan belajar, pengaturan level yang boleh dimainkan, dan reset progres.
+- 📅 **Latihan harian:** paket 10 soal campuran setiap hari, disesuaikan dengan mode yang masih lemah.
+- 🦉 **Tema & maskot:** pilihan tema warna dan maskot pendamping yang bisa dibuka dengan bintang.
+- 🕒 **Jam & waktu:** membaca jam analog/digital, mengatur jarum jam, dan menghitung lama waktu.
+
 ## Pengembangan
 
 ```sh
