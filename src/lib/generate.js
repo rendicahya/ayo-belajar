@@ -641,3 +641,57 @@ export function genFraction({ type, dens }) {
   }
   return { a, b };
 }
+
+// ---------- Menghitung benda ----------
+
+export const ANIMALS = [
+  { emoji: '🐱', name: 'kucing' },
+  { emoji: '🐶', name: 'anjing' },
+  { emoji: '🐰', name: 'kelinci' },
+  { emoji: '🐸', name: 'katak' },
+  { emoji: '🐥', name: 'anak ayam' },
+  { emoji: '🐟', name: 'ikan' },
+  { emoji: '🦋', name: 'kupu-kupu' },
+  { emoji: '🐞', name: 'kepik' },
+  { emoji: '🐢', name: 'kura-kura' },
+  { emoji: '🦆', name: 'bebek' },
+  { emoji: '🐘', name: 'gajah' },
+  { emoji: '🐵', name: 'monyet' },
+];
+
+/** 4 bilangan berurutan di sekitar jawaban, tetap di antara 1 dan max. */
+function countChoices(answer, max) {
+  const start = Math.min(Math.max(answer - rand(0, 3), 1), Math.max(max - 3, 1));
+  return Array.from({ length: 4 }, (_, i) => start + i);
+}
+
+const placeAnimal = (a) => ({ ...a, rot: rand(-12, 12), dy: rand(-6, 6) });
+const herd = (a, n) => Array.from({ length: n }, () => placeAnimal(a));
+
+export function genCount({ type, max }) {
+  if (type === 'count') {
+    const animal = pick(ANIMALS);
+    const answer = rand(1, max);
+    return { animal, answer, field: herd(animal, answer), choices: countChoices(answer, max) };
+  }
+  if (type === 'mixed') {
+    const [animal, other] = shuffle(ANIMALS);
+    const answer = rand(2, max);
+    const others = rand(2, Math.max(2, 13 - answer));
+    const field = shuffle([...Array(answer).fill(animal), ...Array(others).fill(other)]).map(placeAnimal);
+    return { animal, answer, field, choices: countChoices(answer, max) };
+  }
+  if (type === 'take') {
+    const animal = pick(ANIMALS);
+    return { animal, answer: rand(2, max - 1), field: herd(animal, max) };
+  }
+  // mana yang lebih banyak / lebih sedikit
+  const [x, y] = shuffle(ANIMALS);
+  const a = rand(1, max);
+  let b;
+  do b = rand(Math.max(1, a - 3), Math.min(max, a + 3));
+  while (b === a);
+  const ask = Math.random() < 0.6 ? 'more' : 'less';
+  const answer = (ask === 'more') === a > b ? 0 : 1;
+  return { ask, answer, groups: [{ animal: x, n: a, field: herd(x, a) }, { animal: y, n: b, field: herd(y, b) }] };
+}

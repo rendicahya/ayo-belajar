@@ -9,6 +9,7 @@ const columnLevels = [
 ].map((l) => ({ ...l, desc: `${l.count} bilangan, ${l.digits} digit` }));
 
 export const GROUPS = [
+  { title: 'Untuk Si Kecil', modes: ['hitung'] },
   { title: 'Berhitung Bersusun', modes: ['tambah', 'kurang', 'kali', 'bagi', 'porogapit'] },
   { title: 'Mengenal Bilangan', modes: ['garis', 'nilai', 'banding', 'urut', 'pola', 'pecahan'] },
   { title: 'Bangun & Ukuran', modes: ['bangun', 'ukur'] },
@@ -16,6 +17,21 @@ export const GROUPS = [
 ];
 
 export const MODES = {
+  hitung: {
+    id: 'hitung',
+    kind: 'count',
+    title: 'Menghitung Benda',
+    icon: '🐱',
+    color: 'var(--orange)',
+    tagline: 'Ada berapa hewannya?',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', type: 'count', max: 5, desc: 'Hitung hewan sampai 5' },
+      { emoji: '🐥', name: 'Lumayan', type: 'count', max: 10, desc: 'Hitung hewan sampai 10' },
+      { emoji: '🦊', name: 'Sedang', type: 'take', max: 10, desc: 'Ambil hewan sebanyak yang diminta' },
+      { emoji: '🦁', name: 'Sulit', type: 'mixed', max: 10, desc: 'Hitung satu jenis hewan saja' },
+      { emoji: '🐉', name: 'Jago', type: 'compare', max: 10, desc: 'Mana yang lebih banyak atau sedikit?' },
+    ],
+  },
   tambah: {
     id: 'tambah',
     kind: 'column',

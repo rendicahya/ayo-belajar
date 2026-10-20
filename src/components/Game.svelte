@@ -13,6 +13,7 @@
   import PatternGame from './PatternGame.svelte';
   import MeasureGame from './MeasureGame.svelte';
   import ShapeGame from './ShapeGame.svelte';
+  import CountGame from './CountGame.svelte';
   import { TOTAL_ROUNDS } from '../lib/modes.js';
   import { pick } from '../lib/generate.js';
   import { confetti } from '../lib/confetti.js';
@@ -36,6 +37,7 @@
     pattern: PatternGame,
     measure: MeasureGame,
     shape: ShapeGame,
+    count: CountGame,
   };
   const praises = ['Hebat!', 'Pintar!', 'Keren!', 'Luar biasa!', 'Mantap!', 'Jago!', 'Benar sekali!'];
   const cheers = ['🎉', '🥳', '🌟', '🚀', '🦄', '🐯', '🍭'];

@@ -6,6 +6,9 @@ Aplikasi web (frontend saja, Svelte 5 + Vite) untuk anak belajar berhitung denga
 
 ## Mode permainan
 
+**Untuk si kecil**
+- **Menghitung benda:** menghitung hewan 🐱🐶🐰 sampai 5 dan sampai 10, mengambil hewan sebanyak yang diminta, menghitung satu jenis hewan di antara hewan lain, dan memilih kelompok yang lebih banyak atau lebih sedikit. Setiap hewan bisa diketuk untuk diberi nomor sambil dibacakan, pertanyaan dibacakan otomatis, dan ada bantuan "Hitung bersama".
+
 **Berhitung bersusun**
 - **Penjumlahan:** isi jawaban digit demi digit dari kanan. Ketuk lingkaran di atas kolom untuk menyimpan 1 (atau 2 bila ada 3 bilangan).
 - **Pengurangan:** ketuk lingkaran di atas angka untuk meminjam 1 darinya. Angkanya dicoret dan nilai barunya muncul di atas. Pinjaman berantai dari angka 0 juga didukung.
