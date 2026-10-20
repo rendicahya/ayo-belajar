@@ -1,3 +1,5 @@
+import { settings } from './settings.svelte.js';
+
 const BASE = ['nol', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas'];
 
 /** 325 → "tiga ratus dua puluh lima" */
@@ -63,4 +65,9 @@ export function speak(text) {
   u.rate = 0.9;
   u.pitch = 1.1;
   synth.speak(u);
+}
+
+/** Bacakan otomatis (bukan karena diketuk), kecuali suara sedang dimatikan. */
+export function say(text) {
+  if (!settings.muted) speak(text);
 }

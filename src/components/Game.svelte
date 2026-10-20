@@ -14,6 +14,11 @@
   import MeasureGame from './MeasureGame.svelte';
   import ShapeGame from './ShapeGame.svelte';
   import CountGame from './CountGame.svelte';
+  import NumeralGame from './NumeralGame.svelte';
+  import TraceGame from './TraceGame.svelte';
+  import ObjOpGame from './ObjOpGame.svelte';
+  import GroupGame from './GroupGame.svelte';
+  import SizeGame from './SizeGame.svelte';
   import { TOTAL_ROUNDS } from '../lib/modes.js';
   import { pick } from '../lib/generate.js';
   import { confetti } from '../lib/confetti.js';
@@ -38,6 +43,11 @@
     measure: MeasureGame,
     shape: ShapeGame,
     count: CountGame,
+    numeral: NumeralGame,
+    trace: TraceGame,
+    objop: ObjOpGame,
+    group: GroupGame,
+    size: SizeGame,
   };
   const praises = ['Hebat!', 'Pintar!', 'Keren!', 'Luar biasa!', 'Mantap!', 'Jago!', 'Benar sekali!'];
   const cheers = ['🎉', '🥳', '🌟', '🚀', '🦄', '🐯', '🍭'];

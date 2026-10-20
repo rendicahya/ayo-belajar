@@ -659,11 +659,12 @@ export const ANIMALS = [
   { emoji: '🐵', name: 'monyet' },
 ];
 
-/** 4 bilangan berurutan di sekitar jawaban, tetap di antara 1 dan max. */
-function countChoices(answer, max) {
-  const start = Math.min(Math.max(answer - rand(0, 3), 1), Math.max(max - 3, 1));
-  return Array.from({ length: 4 }, (_, i) => start + i);
+/** 4 bilangan berurutan di sekitar jawaban, tetap di antara min dan max. */
+function runChoices(answer, min, max) {
+  const start = Math.min(Math.max(answer - rand(0, 3), min), Math.max(max - 3, min));
+  return Array.from({ length: Math.min(4, max - min + 1) }, (_, i) => start + i);
 }
+const countChoices = (answer, max) => runChoices(answer, 1, max);
 
 const placeAnimal = (a) => ({ ...a, rot: rand(-12, 12), dy: rand(-6, 6) });
 const herd = (a, n) => Array.from({ length: n }, () => placeAnimal(a));
@@ -694,4 +695,153 @@ export function genCount({ type, max }) {
   const ask = Math.random() < 0.6 ? 'more' : 'less';
   const answer = (ask === 'more') === a > b ? 0 : 1;
   return { ask, answer, groups: [{ animal: x, n: a, field: herd(x, a) }, { animal: y, n: b, field: herd(y, b) }] };
+}
+
+// ---------- Mengenal angka ----------
+
+export function genNumeral({ type, min = 1, max }) {
+  if (type === 'listen') {
+    const answer = rand(min, max);
+    const others = shuffle(Array.from({ length: max - min + 1 }, (_, i) => min + i).filter((v) => v !== answer));
+    return { answer, choices: shuffle([answer, ...others.slice(0, 3)]) };
+  }
+  if (type === 'toGroup') {
+    const answer = rand(1, max);
+    const near = shuffle(Array.from({ length: max }, (_, i) => i + 1).filter((v) => v !== answer && Math.abs(v - answer) <= 3));
+    const animals = shuffle(ANIMALS);
+    const groups = shuffle([answer, ...near.slice(0, 2)]).map((n, i) => ({ n, animal: animals[i], field: herd(animals[i], n) }));
+    return { answer, groups };
+  }
+  // angka sebelum / sesudah
+  const dir = Math.random() < 0.5 ? 'after' : 'before';
+  const n = dir === 'after' ? rand(min, max - 1) : rand(min + 1, max);
+  const answer = dir === 'after' ? n + 1 : n - 1;
+  return { dir, n, answer, choices: runChoices(answer, 0, max) };
+}
+
+// ---------- Menulis angka ----------
+
+let lastTrace = null;
+export function genTrace({ digits, twoDigit }) {
+  let v;
+  do v = String(twoDigit ? rand(10, 20) : pick(digits));
+  while (v === lastTrace);
+  return (lastTrace = v);
+}
+
+// ---------- Tambah & kurang dengan benda ----------
+
+export function genObjOp({ ops, max }) {
+  const op = pick(ops);
+  const animal = pick(ANIMALS);
+  if (op === 'tambah') {
+    const a = rand(1, max - 1);
+    const b = rand(1, Math.min(max - a, 5));
+    return { op, animal, a, b, answer: a + b, choices: runChoices(a + b, 1, max) };
+  }
+  const a = rand(2, max);
+  const b = rand(1, Math.min(a - 1, 5));
+  return { op, animal, a, b, answer: a - b, choices: runChoices(a - b, 0, max) };
+}
+
+// ---------- Mengelompokkan ----------
+
+const COLORS = {
+  merah: '#e8435f',
+  biru: '#2fa6dc',
+  kuning: '#ffb703',
+  hijau: '#5aae22',
+};
+const CATEGORIES = {
+  hewan: { icon: '🐾', items: ['🐱', '🐶', '🐰', '🐸', '🐘', '🐵', '🦆', '🐢'] },
+  buah: { icon: '🧺', items: ['🍎', '🍌', '🍇', '🍊', '🍉', '🍓', '🍍', '🥭'] },
+  kendaraan: { icon: '🛣️', items: ['🚗', '🚌', '🚲', '🚂', '✈️', '🚀', '🚢', '🛵'] },
+};
+
+/** Bagi n benda ke beberapa keranjang, tiap keranjang paling sedikit 2. */
+function splitAcross(n, k) {
+  const counts = Array(k).fill(2);
+  for (let i = 2 * k; i < n; i++) counts[rand(0, k - 1)]++;
+  return counts;
+}
+
+export function genGroup({ type }) {
+  let baskets;
+  let make;
+  if (type === 'kind') {
+    baskets = shuffle(ANIMALS).slice(0, 2).map((a) => ({ key: a.name, label: a.name, emoji: a.emoji }));
+    make = (b) => ({ emoji: b.emoji });
+  } else if (type === 'color') {
+    baskets = shuffle(Object.keys(COLORS)).slice(0, 2).map((c) => ({ key: c, label: c, color: COLORS[c] }));
+    make = (b) => ({ shape: { id: pick(BASIC), color: b.color, rot: 0, scale: rand(80, 100) / 100 } });
+  } else if (type === 'shape') {
+    baskets = shuffle(BASIC).slice(0, 2).map((id) => ({ key: id, label: SHAPES[id].name.toLowerCase(), shape: id }));
+    make = (b) => ({ shape: { id: b.shape, color: pick(SHAPE_COLORS), rot: 0, scale: rand(80, 100) / 100 } });
+  } else if (type === 'size') {
+    const animal = pick(ANIMALS);
+    baskets = [
+      { key: 'besar', label: 'besar', emoji: animal.emoji, big: true },
+      { key: 'kecil', label: 'kecil', emoji: animal.emoji, big: false },
+    ];
+    make = (b) => ({ emoji: animal.emoji, big: b.big });
+  } else {
+    baskets = Object.entries(CATEGORIES).map(([key, c]) => ({ key, label: key, emoji: c.icon, pool: shuffle(c.items) }));
+    make = (b, i) => ({ emoji: b.pool[i] });
+  }
+  const counts = splitAcross(baskets.length === 3 ? 9 : rand(6, 8), baskets.length);
+  const items = shuffle(baskets.flatMap((b, bi) => Array.from({ length: counts[bi] }, (_, i) => ({ key: b.key, ...make(b, i) })))).map(
+    (it, id) => ({ ...it, id }),
+  );
+  return { baskets: baskets.map(({ pool, ...b }) => b), items };
+}
+
+// ---------- Besar & kecil ----------
+
+const BIG_THINGS = ['🐘', '🐻', '🐱', '🐶', '🐰', '🍎', '🍉', '🎈', '🌳', '⚽', '🚗', '🧸'];
+const WEIGHTS = [
+  { emoji: '🐘', name: 'gajah', w: 9 },
+  { emoji: '🦛', name: 'kuda nil', w: 8 },
+  { emoji: '🐻', name: 'beruang', w: 7 },
+  { emoji: '🐶', name: 'anjing', w: 5 },
+  { emoji: '🐱', name: 'kucing', w: 4 },
+  { emoji: '🐰', name: 'kelinci', w: 3 },
+  { emoji: '🐥', name: 'anak ayam', w: 2 },
+  { emoji: '🐭', name: 'tikus', w: 1 },
+];
+const CRAYONS = ['#e8435f', '#2fa6dc', '#ffb703', '#5aae22', '#8f4fd9', '#ec4fa8'];
+
+/** k bilangan berbeda dari [lo, hi], selisihnya paling sedikit gap. */
+function distinctSpread(k, lo, hi, gap) {
+  for (;;) {
+    const vs = Array.from({ length: k }, () => rand(lo, hi));
+    const sorted = [...vs].sort((a, b) => a - b);
+    if (sorted.every((v, i) => i === 0 || v - sorted[i - 1] >= gap)) return vs;
+  }
+}
+
+export function genSize({ type }) {
+  const most = Math.random() < 0.55;
+  if (type === 'big') {
+    const emoji = pick(BIG_THINGS);
+    const sizes = shuffle([1, rand(45, 65) / 100]);
+    const answer = sizes.indexOf(most ? 1 : Math.min(...sizes));
+    return { ask: most ? 'besar' : 'kecil', items: sizes.map((s) => ({ emoji, s })), answer };
+  }
+  if (type === 'long' || type === 'tall') {
+    const vals = type === 'long' ? distinctSpread(3, 30, 100, 15) : distinctSpread(3, 2, 8, 2);
+    const target = most ? Math.max(...vals) : Math.min(...vals);
+    const colors = shuffle(CRAYONS);
+    const ask = type === 'long' ? (most ? 'panjang' : 'pendek') : most ? 'tinggi' : 'rendah';
+    return { ask, items: vals.map((v, i) => ({ v, color: colors[i] })), answer: vals.indexOf(target) };
+  }
+  if (type === 'heavy') {
+    const [a, b] = shuffle(WEIGHTS);
+    const items = [a, b];
+    const heavier = a.w > b.w ? 0 : 1;
+    return { ask: most ? 'berat' : 'ringan', items, heavier, answer: most ? heavier : 1 - heavier };
+  }
+  // urutkan dari yang paling kecil
+  const emoji = pick(BIG_THINGS);
+  const sizes = [0.4, 0.6, 0.8, 1];
+  return { items: shuffle(sizes).map((s) => ({ emoji, s })), order: sizes };
 }

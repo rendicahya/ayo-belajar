@@ -2,9 +2,10 @@
   import { untrack, onDestroy } from 'svelte';
   import { genCount } from '../lib/generate.js';
   import { play } from '../lib/sound.js';
-  import { speak, canSpeak } from '../lib/speech.js';
-  import { settings } from '../lib/settings.svelte.js';
+  import { say } from '../lib/speech.js';
   import ChoiceButtons from './ChoiceButtons.svelte';
+  import AskBar from './AskBar.svelte';
+  import Herd from './Herd.svelte';
 
   let props = $props();
   const level = untrack(() => props.level);
@@ -19,8 +20,6 @@
         : type === 'take'
           ? `Ambil ${q.answer} ${q.animal.name}.`
           : `Mana yang lebih ${q.ask === 'more' ? 'banyak' : 'sedikit'}?`;
-  const say = (text) => !settings.muted && speak(text);
-  say(question);
 
   let wrong = $state([]);
   let solved = $state(false);
@@ -116,10 +115,7 @@
   }
 </script>
 
-<div class="ask">
-  <p>{question}</p>
-  {#if canSpeak}<button class="say" onclick={() => speak(question)} aria-label="Bacakan">🔊</button>{/if}
-</div>
+<AskBar text={question} />
 
 {#if type === 'compare'}
   <div class="groups">
@@ -132,11 +128,7 @@
         onclick={() => pickGroup(gi)}
         aria-label="Kelompok {g.animal.name}"
       >
-        <span class="herd small">
-          {#each g.field as a, i}
-            <span class="animal" style="--r:{a.rot}deg; --dy:{a.dy}px; --d:{i * 0.05}s">{a.emoji}</span>
-          {/each}
-        </span>
+        <Herd field={g.field} />
         {#if solved}<b class="tally">{g.n}</b>{/if}
       </button>
     {/each}
@@ -179,25 +171,6 @@
 <p class="msg {message.kind}" aria-live="polite">{message.text}</p>
 
 <style>
-  .ask {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 6px;
-  }
-
-  .ask p {
-    font-size: clamp(1.3rem, 5.5vw, 1.8rem);
-    font-weight: 700;
-    text-align: center;
-  }
-
-  .say {
-    font-size: 1.6rem;
-    line-height: 1;
-  }
-
   .field {
     display: flex;
     flex-wrap: wrap;
@@ -295,18 +268,6 @@
   .group.right {
     border-color: var(--ok);
     background: var(--ok-soft);
-  }
-
-  .herd {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 4px;
-  }
-
-  .herd.small .animal {
-    font-size: clamp(1.7rem, 7vw, 2.4rem);
-    padding: 2px;
   }
 
   .tally {
