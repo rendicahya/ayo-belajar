@@ -4,6 +4,7 @@
   import { DIGIT_STROKES } from '../lib/digits.js';
   import { LETTER_STROKES, LETTER_LINES, letterName } from '../lib/letters.js';
   import { TRACE_ART } from '../lib/drawings.js';
+  import { HIJAIYAH_TRACE } from '../lib/hijaiyah.js';
   import { play } from '../lib/sound.js';
   import { say } from '../lib/speech.js';
   import AskBar from './AskBar.svelte';
@@ -11,8 +12,10 @@
   let props = $props();
   const level = untrack(() => props.level);
   const value = genTrace(level);
-  // gambar (garis, bentuk, benda) dari tab Menggambar, kotaknya 200 × 200
-  const art = level.art ? TRACE_ART[value] : null;
+  // gambar (garis, bentuk, benda) dari tab Menggambar atau huruf hijaiyah, kotaknya 200 × 200
+  const arabic = !!level.hijaiyah;
+  const art = level.art ? (arabic ? HIJAIYAH_TRACE : TRACE_ART)[value] : null;
+  const picture = art && !arabic;
   const isNumber = !art && /^\d+$/.test(value);
   const isLetter = !art && !isNumber;
   const glyphs = art ? [{ w: 200, s: art.s }] : [...value].map((ch) => (isNumber ? { w: 100, s: DIGIT_STROKES[ch] } : LETTER_STROKES[ch]));
@@ -22,10 +25,10 @@
   const height = art ? 200 : isNumber ? 140 : LETTER_LINES.height;
   // huruf sempit (i, l) diberi ruang kiri-kanan supaya garis buku tulisnya tetap terlihat
   const pad = isLetter ? Math.max(10, (150 - width) / 2) : 0;
-  const verb = art ? 'gambar' : 'tulis';
+  const verb = picture ? 'gambar' : 'tulis';
 
   const what = art
-    ? { text: art.name, spoken: art.name }
+    ? { text: art.name, spoken: art.spoken ?? art.name }
     : isNumber
     ? { text: `angka ${value}`, spoken: `angka ${value}` }
     : level.pairs
@@ -149,7 +152,7 @@
     }
     solved = true;
     pressed = false;
-    const did = art ? 'menggambar' : 'menulis';
+    const did = picture ? 'menggambar' : 'menulis';
     message = { text: `Hebat, kamu ${did} ${what.text}!`, kind: 'ok' };
     play('correct');
     say(`Hebat, kamu ${did} ${what.spoken}!`);
@@ -165,10 +168,13 @@
 </script>
 
 <AskBar text="Ayo {verb} {what.text}!" spoken="Ayo {verb} {what.spoken}!" />
-<p class="hint">Mulai dari titik hijau, lalu ikuti jalurnya dengan jari.</p>
+<p class="hint">
+  {arabic ? 'Mulai dari titik hijau. Huruf Arab ditulis dari kanan ke kiri, titiknya terakhir.' : 'Mulai dari titik hijau, lalu ikuti jalurnya dengan jari.'}
+</p>
 
 {#key shake}
   <div class="board" class:bad={shake > 0 && !solved}>
+    {#if art?.glyph}<span class="ref" aria-label="Contoh huruf"><span class="ar">{art.glyph}</span></span>{/if}
     <svg
       bind:this={svg}
       viewBox="{-pad} 0 {width + 2 * pad} {height}"
@@ -186,15 +192,18 @@
           <line x1={-pad} x2={width + pad} y1={LETTER_LINES[k]} y2={LETTER_LINES[k]} class="rule {k}" />
         {/each}
       {/if}
+      {#if arabic}
+        <line x1="0" x2="200" y1="135" y2="135" class="rule base" />
+      {/if}
       {#if solved && art?.fill}
         {#each art.fill as f}<path d={f.d} style="fill:{f.c}" class="fill" />{/each}
       {/if}
       {#each strokes as s, i}
         <g transform="translate({s.dx} 0)">
-          <path d={s.path} class="road" class:faint={level.guide === 'faint'} class:gone={solved && art} bind:this={pathEls[i]} />
+          <path d={s.path} class="road" class:faint={level.guide === 'faint'} class:gone={solved && picture} bind:this={pathEls[i]} />
           {#if level.guide === 'dots' && !solved}<path d={s.path} class="dots" />{/if}
           {#if frac(i) > 0}
-            <path d={s.path} class="ink" class:done={solved} class:art pathLength="1" stroke-dasharray="{frac(i)} 2" />
+            <path d={s.path} class="ink" class:done={solved} class:art={picture} pathLength="1" stroke-dasharray="{frac(i)} 2" />
           {/if}
           {#if demo && !solved}
             {#key demo}
@@ -230,6 +239,7 @@
 
 <style>
   .board {
+    position: relative;
     display: flex;
     justify-content: center;
     max-width: 520px;
@@ -238,6 +248,27 @@
     border-radius: var(--radius);
     background: var(--card);
     box-shadow: var(--shadow);
+  }
+
+  /* contoh huruf hijaiyah cetak di pojok papan */
+  .ref {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    display: grid;
+    place-items: center;
+    min-width: 58px;
+    height: 58px;
+    border-radius: 16px;
+    background: var(--ok-soft);
+    color: var(--ok);
+    font-size: 2.4rem;
+    line-height: 1;
+  }
+
+  .ref .ar {
+    line-height: 1;
+    padding-bottom: 8px;
   }
 
   .board.bad {

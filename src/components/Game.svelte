@@ -25,6 +25,9 @@
   import ColorGame from './ColorGame.svelte';
   import DotsGame from './DotsGame.svelte';
   import GridGame from './GridGame.svelte';
+  import HijaiyahGame from './HijaiyahGame.svelte';
+  import HarakatGame from './HarakatGame.svelte';
+  import DoaGame from './DoaGame.svelte';
   import { TOTAL_ROUNDS } from '../lib/modes.js';
   import { pick } from '../lib/generate.js';
   import { confetti } from '../lib/confetti.js';
@@ -60,6 +63,9 @@
     color: ColorGame,
     dots: DotsGame,
     grid: GridGame,
+    hijaiyah: HijaiyahGame,
+    harakat: HarakatGame,
+    doa: DoaGame,
   };
   const praises = ['Hebat!', 'Pintar!', 'Keren!', 'Luar biasa!', 'Mantap!', 'Jago!', 'Benar sekali!'];
   const cheers = ['🎉', '🥳', '🌟', '🚀', '🦄', '🐯', '🍭'];

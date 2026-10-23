@@ -215,6 +215,15 @@ p {
   }
 }
 
+/* tulisan Arab (huruf hijaiyah, doa, surat) */
+.ar {
+  font-family: 'Noto Naskh Arabic', 'Amiri', 'Traditional Arabic', 'Geeza Pro', serif;
+  direction: rtl;
+  unicode-bidi: isolate;
+  font-weight: 500;
+  line-height: 1.9;
+}
+
 .msg {
   text-align: center;
   font-weight: 500;

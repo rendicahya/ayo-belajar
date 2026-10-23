@@ -34,6 +34,19 @@
   let message = $state({ text: '', kind: '' });
   let badTimer;
 
+  let svg = $state();
+  // ketukan memilih titik terdekat, supaya titik yang berdekatan tidak saling menutupi
+  function nearest(e) {
+    const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(svg.getScreenCTM().inverse());
+    let best = -1;
+    let bestD = 22;
+    pic.pts.forEach(([x, y], i) => {
+      const d = Math.hypot(p.x - x, p.y - y);
+      if (d < bestD) [best, bestD] = [i, d];
+    });
+    if (best >= 0) tap(best);
+  }
+
   const path = $derived(pic.pts.slice(0, k).map(([x, y]) => `${x},${y}`).join(' '));
 
   function tap(i) {
@@ -73,7 +86,7 @@
 <p class="hint">Ketuk titiknya satu per satu sesuai urutan. Gambar apa yang muncul, ya?</p>
 
 <div class="board">
-  <svg viewBox="-26 -26 252 252" role="img" aria-label="Titik-titik gambar rahasia">
+  <svg bind:this={svg} viewBox="-26 -26 252 252" role="img" aria-label="Titik-titik gambar rahasia" onpointerdown={nearest}>
     {#if solved}
       <polygon points={pic.pts.map((p) => p.join(',')).join(' ')} class="shape" style="fill:{pic.color}" />
     {:else if k > 1}
@@ -90,10 +103,8 @@
         role="button"
         tabindex="-1"
         aria-label={labels[i]}
-        onclick={() => tap(i)}
         onkeydown={(e) => e.key === 'Enter' && tap(i)}
       >
-        <circle cx={x} cy={y} r="16" class="hit" />
         <circle cx={x} cy={y} r={hinted ? 8 : 6} class="pin" />
         <text x={tags[i][0]} y={tags[i][1]} class="tag">{labels[i]}</text>
       </g>
@@ -144,10 +155,6 @@
   .dot {
     cursor: pointer;
     outline: none;
-  }
-
-  .hit {
-    fill: transparent;
   }
 
   .pin {

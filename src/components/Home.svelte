@@ -48,7 +48,7 @@
       </span>
     {/each}
   </h1>
-  <p class="sub">Belajar berhitung, menulis, membaca, dan menggambar sambil bermain! 🎈</p>
+  <p class="sub">Belajar berhitung, menulis, membaca, menggambar, dan mengaji sambil bermain! 🎈</p>
 </section>
 
 <section class="stats">

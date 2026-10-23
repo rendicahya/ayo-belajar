@@ -8,7 +8,9 @@
   import { play } from '../lib/sound.js';
   import { speak } from '../lib/speech.js';
 
-  let { tiles, target, tail = '', wide = false, onsolved, onwrong } = $props();
+  // `item` (snippet) menggambar isi keping bila perlu, `rtl` = kotak diisi dari kanan (tulisan Arab),
+  // `voice` = bacakan teks keping saat diketuk
+  let { tiles, target, tail = '', wide = false, item = null, rtl = false, voice = true, onsolved, onwrong } = $props();
 
   let slots = $state(untrack(() => target.map(() => null))); // id keping di tiap kotak
   let marks = $state([]); // 'ok' / 'bad' per kotak setelah diperiksa
@@ -25,7 +27,7 @@
     slots[i] = tile.id;
     marks = [];
     play('pop');
-    speak(tile.text);
+    if (voice) speak(tile.text);
     if (!slots.includes(null)) check();
   }
 
@@ -54,7 +56,7 @@
   }
 </script>
 
-<div class="slots" class:wide>
+<div class="slots" class:wide dir={rtl ? 'rtl' : null}>
   {#each slots as id, i}
     <button
       class="slot"
@@ -65,16 +67,16 @@
       onclick={() => unplace(i)}
       aria-label={id === null ? `Kotak ${i + 1} kosong` : `${byId(id).text}, ketuk untuk mengembalikan`}
     >
-      {id === null ? '' : byId(id).text}
+      {#if id !== null}{#if item}{@render item(byId(id))}{:else}{byId(id).text}{/if}{/if}
     </button>
   {/each}
   {#if tail}<span class="tail">{tail}</span>{/if}
 </div>
 
-<div class="tray" class:wide>
+<div class="tray" class:wide dir={rtl ? 'rtl' : null}>
   {#each tiles as t}
     <button class="tile" class:gone={used.has(t.id)} disabled={solved || used.has(t.id)} onclick={() => place(t)}>
-      {t.text}
+      {#if item}{@render item(t)}{:else}{t.text}{/if}
     </button>
   {/each}
 </div>

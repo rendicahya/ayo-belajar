@@ -1,3 +1,5 @@
+import { hijaiyahIds } from './hijaiyah.js';
+
 export const TOTAL_ROUNDS = 10;
 
 const columnLevels = [
@@ -57,6 +59,17 @@ export const SUBJECTS = [
     // halaman tanpa level, ditampilkan setelah kartu bernomor
     extras: [{ href: '#/kanvas', icon: '🖌️', title: 'Kanvas Bebas', tagline: 'Gambar sesukamu, lalu simpan', color: 'var(--coral)' }],
   },
+  {
+    id: 'mengaji',
+    title: 'Mengaji',
+    icon: '🕌',
+    color: 'var(--ok)',
+    groups: [
+      { icon: '🎨', title: 'TK A', age: '4–5 tahun', modes: ['hijaiyah'] },
+      { icon: '🖍️', title: 'TK B', age: '5–6 tahun', modes: ['tulisarab', 'harakat'] },
+      { icon: '🎒', title: 'Kelas 1–2 SD', age: '6–8 tahun', modes: ['doa'] },
+    ],
+  },
 ];
 
 /** Kartu dianggap "siap lanjut" setelah Level 3 mendapat bintang. */
@@ -65,6 +78,66 @@ export const NEXT_AFTER_LEVEL = 3;
 const allPictures = ['bola', 'matahari', 'balon', 'apel', 'rumah', 'ikan', 'pohon', 'eskrim', 'kucing', 'bunga', 'mobil', 'kupu'];
 
 export const MODES = {
+  hijaiyah: {
+    id: 'hijaiyah',
+    kind: 'hijaiyah',
+    title: 'Huruf Hijaiyah',
+    icon: 'ا ب',
+    color: 'var(--ok)',
+    tagline: 'Alif, ba, ta sampai ya',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', type: 'listen', from: 0, to: 7, n: 3, desc: 'Alif sampai kho (7 huruf)' },
+      { emoji: '🐥', name: 'Lumayan', type: 'listen', from: 0, to: 14, n: 4, desc: 'Alif sampai shod (14 huruf)' },
+      { emoji: '🦊', name: 'Sedang', type: 'listen', from: 0, to: 28, n: 4, desc: 'Semua 28 huruf' },
+      { emoji: '🦁', name: 'Sulit', type: 'name', from: 0, to: 28, n: 4, desc: 'Lihat huruf, pilih namanya' },
+      { emoji: '🐉', name: 'Jago', type: 'similar', desc: 'Huruf mirip, beda titik: ب ت ث' },
+    ],
+  },
+  tulisarab: {
+    id: 'tulisarab',
+    kind: 'trace',
+    title: 'Menulis Hijaiyah',
+    icon: '✍️',
+    color: 'var(--teal)',
+    tagline: 'Telusuri huruf dari kanan',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', hijaiyah: true, art: hijaiyahIds(0, 4), guide: 'dots', desc: 'Alif, ba, ta, tsa' },
+      { emoji: '🐥', name: 'Lumayan', hijaiyah: true, art: hijaiyahIds(4, 11), guide: 'dots', desc: 'Jim sampai zai' },
+      { emoji: '🦊', name: 'Sedang', hijaiyah: true, art: hijaiyahIds(11, 19), guide: 'dots', desc: 'Sin sampai ghoin' },
+      { emoji: '🦁', name: 'Sulit', hijaiyah: true, art: hijaiyahIds(19, 28), guide: 'dots', desc: 'Fa sampai ya' },
+      { emoji: '🐉', name: 'Jago', hijaiyah: true, art: hijaiyahIds(0, 28), guide: 'faint', desc: 'Semua huruf, tanpa titik bantu' },
+    ],
+  },
+  harakat: {
+    id: 'harakat',
+    kind: 'harakat',
+    title: 'Harakat',
+    icon: 'بَ',
+    color: 'var(--lime)',
+    tagline: 'Ba, bi, bu, lalu disambung',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', type: 'fathah', desc: 'Fathah: ba, ta, tsa …' },
+      { emoji: '🐥', name: 'Lumayan', type: 'vowels', desc: 'Fathah, kasrah, dhammah: ba, bi, bu' },
+      { emoji: '🦊', name: 'Sedang', type: 'mixed', desc: 'Huruf & harakat campuran' },
+      { emoji: '🦁', name: 'Sulit', type: 'tanwin', desc: 'Tanwin: ban, bin, bun' },
+      { emoji: '🐉', name: 'Jago', type: 'word', desc: 'Sambung 2–3 huruf: kataba' },
+    ],
+  },
+  doa: {
+    id: 'doa',
+    kind: 'doa',
+    title: 'Doa & Surat Pendek',
+    icon: '🤲',
+    color: 'var(--indigo)',
+    tagline: 'Susun doa dan ayat sesuai urutan',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', type: 'build', sets: ['short'], desc: 'Basmalah, hamdalah, doa tidur' },
+      { emoji: '🐥', name: 'Lumayan', type: 'build', sets: ['daily'], desc: 'Doa makan, bangun tidur, orang tua' },
+      { emoji: '🦊', name: 'Sedang', type: 'build', sets: ['surah3'], desc: 'Al-Kautsar & Al-Ikhlas' },
+      { emoji: '🦁', name: 'Sulit', type: 'build', sets: ['surah5', 'fatihah'], desc: 'Al-Falaq, An-Nas, Al-Fatihah' },
+      { emoji: '🐉', name: 'Jago', type: 'next', sets: ['surah3', 'surah5', 'fatihah'], desc: 'Tebak ayat sesudahnya' },
+    ],
+  },
   garisbentuk: {
     id: 'garisbentuk',
     kind: 'trace',

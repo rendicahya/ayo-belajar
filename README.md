@@ -2,7 +2,7 @@
 
 **Main sekarang: https://rendicahya.github.io/ayo-belajar/**
 
-Aplikasi web (frontend saja, Svelte 5 + Vite) untuk anak belajar berhitung, menulis, membaca, dan menggambar dengan tampilan ceria dan ramah HP/tablet. Beranda punya tab mata pelajaran: 🔢 Berhitung, ✏️ Menulis, 📖 Membaca, dan 🎨 Menggambar. Tab terakhir yang dibuka diingat.
+Aplikasi web (frontend saja, Svelte 5 + Vite) untuk anak belajar berhitung, menulis, membaca, menggambar, dan mengaji dengan tampilan ceria dan ramah HP/tablet. Beranda punya tab mata pelajaran: 🔢 Berhitung, ✏️ Menulis, 📖 Membaca, 🎨 Menggambar, dan 🕌 Mengaji. Tab terakhir yang dibuka diingat.
 
 ## 🧭 Urutan belajar
 
@@ -17,7 +17,7 @@ Di setiap tab, kartu dikelompokkan menurut usia dan diberi nomor urut. Setiap ka
 | 📚 Kelas 2 SD | Nilai Tempat, Pola Bilangan, Bandingkan Hasil, Tabel Perkalian, Perkalian, Satuan Ukur | | | |
 | 🏆 Kelas 3 SD ke atas | Pembagian, Pecahan, Soal Cerita, Pembagian Panjang | | | |
 
-Tab Menggambar juga punya **Kanvas Bebas** untuk semua usia.
+Tab Menggambar juga punya **Kanvas Bebas** untuk semua usia. Tab 🕌 Mengaji berurutan: Huruf Hijaiyah (TK A), Menulis Hijaiyah dan Harakat (TK B), lalu Doa & Surat Pendek (kelas 1–2).
 
 ## 🔢 Berhitung
 
@@ -80,6 +80,15 @@ Huruf dibacakan dengan nama Indonesianya (a, be, ce, …). Saat menyusun, keping
 - **Salin & cermin:** tarik garis di kotak titik (atau ketuk dua titik) untuk menyalin gambar contoh, lalu mencerminkan separuh gambar ke kanan atau ke bawah. Garis yang salah ditolak, dan petunjuk muncul setelah 2 kali salah.
 - **Kanvas bebas:** 9 warna krayon, 3 ukuran kuas, penghapus, stempel ⭐❤️🌸🐱, batal, dan simpan gambar sebagai PNG. Gambar tersimpan di perangkat sampai dihapus.
 
+## 🕌 Mengaji
+
+- **Huruf hijaiyah:** mendengar nama huruf lalu memilih hurufnya (7 huruf pertama, 14 huruf, lalu semua 28 huruf), melihat huruf lalu memilih namanya, dan membedakan huruf yang mirip dari titiknya (ب ت ث ن, ج ح خ, …).
+- **Menulis hijaiyah:** menelusuri huruf dari kanan ke kiri di atas garis dasar, dengan contoh huruf cetak di pojok papan. Badan huruf ditulis dulu, titiknya terakhir.
+- **Harakat:** fathah (ba, ta, …), lalu fathah–kasrah–dhammah (ba, bi, bu), huruf dan harakat campuran, tanwin (ban, bin, bun), dan sambungan 2–3 huruf seperti latihan Iqro.
+- **Doa & surat pendek:** menyusun potongan doa harian (basmalah, doa tidur, doa makan, doa untuk orang tua, …) dan ayat Al-Kautsar, Al-Ikhlas, Al-Falaq, An-Nas, serta Al-Fatihah sesuai urutan, lengkap dengan latin dan artinya. Level terakhir menebak ayat sesudahnya.
+
+Nama huruf dibacakan dengan suara bahasa Indonesia (Alif, Ba, Ta, …). Bacaan Arab tidak disuarakan mesin, jadi lafal dan makhrajnya tetap dicontohkan guru ngaji atau orang tua. Teks doa dan surat mengikuti penulisan mushaf standar Indonesia, dengan latin mengikuti pedoman transliterasi Kemenag.
+
 ## Fitur belajar
 - 💡 **Petunjuk:** menyorot kolom yang sedang dikerjakan dan menjelaskan langkahnya, misalnya "7 + 5 = 12, tulis 2, simpan 1".
 - 👀 **Lihat cara:** setelah 2 kali salah, cara menjawab bisa diputar langkah demi langkah.
@@ -116,6 +125,7 @@ Struktur singkat:
 - `src/lib/generate.js`: pembuat soal mode berhitung
 - `src/lib/words.js`: daftar kata bergambar, suku kata, kalimat, dan pembuat soal mode membaca
 - `src/lib/letters.js`, `src/lib/digits.js`: jalur goresan huruf dan angka untuk mode menulis
+- `src/lib/hijaiyah.js`: huruf hijaiyah, harakat, jalur menulis huruf Arab, serta teks doa & surat pendek
 - `src/lib/drawings.js`: gambar untuk tab Menggambar (jalur telusur, bagian mewarnai, titik, dan pola kotak titik)
 - `src/lib/board.js`: model papan bersusun beserta langkah penyelesaiannya (dipakai Petunjuk & Lihat cara)
 - `src/lib/boardState.svelte.js`: state interaktif papan (isi, cek, petunjuk)
