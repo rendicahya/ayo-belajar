@@ -55,16 +55,65 @@ if (canSpeak) {
   window.speechSynthesis.addEventListener?.('voiceschanged', pickVoice);
 }
 
-export function speak(text) {
-  if (!canSpeak) return;
+// Browser menolak suara sebelum halaman pernah disentuh (mis. saat aplikasi baru dibuka langsung di
+// halaman soal). Teks terakhir disimpan dulu dan dibacakan pada ketukan pertama.
+let touched = false;
+let pending = null;
+let current = null; // referensi ucapan supaya tidak dibuang sebelum selesai (bug Chrome)
+
+const activated = () => touched || navigator.userActivation?.hasBeenActive === true;
+
+function utter(text) {
   const synth = window.speechSynthesis;
-  synth.cancel();
+  if (!voice) pickVoice();
   const u = new SpeechSynthesisUtterance(toSpeech(text));
-  u.lang = 'id-ID';
+  u.lang = voice?.lang ?? 'id-ID';
   if (voice) u.voice = voice;
   u.rate = 0.9;
   u.pitch = 1.1;
+  u.onend = u.onerror = () => {
+    if (current === u) current = null;
+  };
+  current = u;
+  synth.resume(); // Chrome kadang tersangkut dalam keadaan jeda
   synth.speak(u);
+}
+
+export function speak(text) {
+  if (!canSpeak) return;
+  if (!activated()) {
+    pending = text;
+    return;
+  }
+  const synth = window.speechSynthesis;
+  if (synth.speaking || synth.pending) {
+    synth.cancel();
+    // ucapan yang dikirim tepat setelah cancel() sering hilang di Chrome Android
+    setTimeout(() => utter(text), 80);
+  } else {
+    utter(text);
+  }
+}
+
+if (canSpeak) {
+  // hanya event yang dihitung browser sebagai interaksi pengguna (pointerdown sentuhan tidak termasuk)
+  const events = ['mousedown', 'touchend', 'click', 'keydown'];
+  const unlock = () => {
+    if (touched) return;
+    touched = true;
+    events.forEach((ev) => window.removeEventListener(ev, unlock, true));
+    if (pending) {
+      const text = pending;
+      pending = null;
+      utter(text);
+    } else {
+      // ucapan kosong di dalam ketukan membuka kunci suara di Safari iPhone/iPad
+      const u = new SpeechSynthesisUtterance(' ');
+      u.volume = 0;
+      window.speechSynthesis.speak(u);
+    }
+  };
+  events.forEach((ev) => window.addEventListener(ev, unlock, true));
 }
 
 /** Bacakan otomatis (bukan karena diketuk), kecuali suara sedang dimatikan. */
