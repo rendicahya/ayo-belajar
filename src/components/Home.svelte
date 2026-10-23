@@ -1,7 +1,7 @@
 <script>
-  import { MODES, SUBJECTS } from '../lib/modes.js';
+  import { MODES, SUBJECTS, NEXT_AFTER_LEVEL } from '../lib/modes.js';
   import { STICKERS } from '../lib/stickers.js';
-  import { settings, setSubject, progress, streak, practicedToday, unlockedStickers } from '../lib/settings.svelte.js';
+  import { settings, setSubject, progress, streak, practicedToday, unlockedStickers, getBest } from '../lib/settings.svelte.js';
   import { play } from '../lib/sound.js';
 
   const letterColors = ['var(--coral)', 'var(--sun)', 'var(--lime)', 'var(--sky)', 'var(--grape)', 'var(--pink)'];
@@ -13,6 +13,23 @@
   const today = $derived(practicedToday());
   const stickers = $derived(unlockedStickers());
   const subject = $derived(SUBJECTS.find((s) => s.id === settings.subject) ?? SUBJECTS[0]);
+
+  // nomor urut kartu di tab ini, dan level mana saja yang sudah dapat bintang
+  const steps = $derived(
+    subject.groups.map((g, gi) => {
+      const before = subject.groups.slice(0, gi).reduce((n, x) => n + x.modes.length, 0);
+      return g.modes.map((id, i) => {
+        const mode = MODES[id];
+        return { mode, no: before + i + 1, done: mode.levels.map((_, k) => getBest(`${id}-${k}`) > 0) };
+      });
+    }),
+  );
+  // saran berikutnya: kartu pertama yang Level 3-nya belum berbintang, mulai dari level pertama yang belum dimainkan
+  const next = $derived.by(() => {
+    const step = steps.flat().find((s) => !s.done[NEXT_AFTER_LEVEL - 1]);
+    if (!step) return null;
+    return { ...step, level: step.done.indexOf(false) + 1, fresh: !step.done.some(Boolean) };
+  });
 
   function choose(s) {
     if (s.id === subject.id) return;
@@ -71,14 +88,46 @@
   {/each}
 </div>
 
-{#each subject.groups as group (group.title + subject.id)}
-  <h2 class="group">{group.title}</h2>
+{#if next}
+  <a class="next" href="#/{next.mode.id}/{next.level}" style="--c:{next.mode.color}">
+    <span class="icon">{next.mode.icon}</span>
+    <span class="next-info">
+      <small>{next.fresh ? (next.no === 1 ? 'Mulai dari sini' : 'Langkah berikutnya') : 'Lanjut belajar'}</small>
+      <b>{next.no}. {next.mode.title}</b>
+      <span>Level {next.level} · {next.mode.levels[next.level - 1].desc}</span>
+    </span>
+    <span class="go" aria-hidden="true">▶</span>
+  </a>
+{:else}
+  <p class="all-done">🎉 Semua kartu di tab ini sudah sampai Level {NEXT_AFTER_LEVEL}. Coba level yang lebih sulit, ya!</p>
+{/if}
+
+<p class="guide">
+  Kartu diurutkan dari usia termuda. Ikuti nomornya, dan pindah ke kartu berikutnya setelah Level {NEXT_AFTER_LEVEL}
+  dapat bintang. Usia hanya patokan, sesuaikan dengan kemampuan anak.
+</p>
+
+{#each subject.groups as group, gi (group.title + subject.id)}
+  <h2 class="group">
+    <span class="g-icon">{group.icon}</span>
+    <span>{group.title}</span>
+    <span class="age">{group.age}</span>
+  </h2>
   <section class="modes">
-    {#each group.modes.map((id) => MODES[id]) as mode, i}
-      <a class="mode" href="#/{mode.id}" style="--c:{mode.color}; --tilt:{i % 2 ? 1.5 : -1.5}deg">
+    {#each steps[gi] as { mode, no, done }, i}
+      <a
+        class="mode"
+        class:current={next?.mode.id === mode.id}
+        href="#/{mode.id}"
+        style="--c:{mode.color}; --tilt:{i % 2 ? 1.5 : -1.5}deg"
+      >
+        <span class="no">{no}</span>
         <span class="icon">{mode.icon}</span>
         <span class="name">{mode.title}</span>
         <span class="tagline">{mode.tagline}</span>
+        <span class="dots" aria-label="{done.filter(Boolean).length} dari {done.length} level berbintang">
+          {#each done as d}<i class:on={d}></i>{/each}
+        </span>
       </a>
     {/each}
   </section>
@@ -203,11 +252,147 @@
     }
   }
 
+  .next {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: var(--radius);
+    background: var(--card);
+    box-shadow: var(--shadow);
+    border: 3px solid var(--c);
+  }
+
+  .next:active {
+    transform: scale(0.98);
+  }
+
+  .next .icon {
+    flex: none;
+    width: 58px;
+    height: 58px;
+    margin: 0;
+    font-size: 1.7rem;
+  }
+
+  .next-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+    min-width: 0;
+  }
+
+  .next-info small {
+    color: var(--c);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.8rem;
+  }
+
+  .next-info b {
+    font-size: 1.25rem;
+  }
+
+  .next-info span {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .go {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--c);
+    color: #fff;
+    font-size: 1.1rem;
+    animation: bob 1.6s ease-in-out infinite;
+  }
+
+  .all-done {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: var(--radius);
+    background: var(--soft-sun);
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .guide {
+    margin: 12px 4px 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+    line-height: 1.4;
+  }
+
   .group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
     margin: 22px 4px 10px;
     font-size: 1.25rem;
     font-weight: 600;
+  }
+
+  .g-icon {
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+
+  .age {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--card);
+    box-shadow: var(--shadow);
     color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  .mode {
+    position: relative;
+  }
+
+  .mode.current {
+    border-color: var(--c);
+  }
+
+  .no {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 6px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--c);
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  .dots {
+    display: flex;
+    gap: 5px;
+    margin-top: 6px;
+  }
+
+  .dots i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--line);
+  }
+
+  .dots i.on {
+    background: var(--sun);
   }
 
   .modes {

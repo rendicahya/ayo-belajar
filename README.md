@@ -4,6 +4,19 @@
 
 Aplikasi web (frontend saja, Svelte 5 + Vite) untuk anak belajar berhitung, menulis, dan membaca dengan tampilan ceria dan ramah HP/tablet. Beranda punya tiga tab mata pelajaran: 🔢 Berhitung, ✏️ Menulis, dan 📖 Membaca. Tab terakhir yang dibuka diingat.
 
+## 🧭 Urutan belajar
+
+Di setiap tab, kartu dikelompokkan menurut usia dan diberi nomor urut. Setiap kartu menampilkan titik progres untuk lima levelnya. Kartu **Lanjut belajar** di atas daftar langsung membuka kartu dan level berikutnya. Saran pindah kartu muncul setelah Level 3 mendapat bintang. Usia hanya patokan.
+
+| Tahap | 🔢 Berhitung | ✏️ Menulis | 📖 Membaca |
+|---|---|---|---|
+| 🧸 Kelompok Bermain (3–4 th) | Besar & Kecil, Mengelompokkan, Menghitung Benda | | |
+| 🎨 TK A (4–5 th) | Mengenal Angka, Menulis Angka, Tambah & Kurang Benda, Bangun Datar *(untuk TK 4–6 th)* | Huruf Besar | Mengenal Huruf |
+| 🖍️ TK B (5–6 th) | | Huruf Kecil | Suku Kata |
+| 🎒 Kelas 1 SD | Garis Bilangan, Perbandingan, Mengurutkan, Penjumlahan, Pengurangan, Uang & Belanja | | Menyusun Kalimat *(kelas 1–2)* |
+| 📚 Kelas 2 SD | Nilai Tempat, Pola Bilangan, Bandingkan Hasil, Tabel Perkalian, Perkalian, Satuan Ukur | | |
+| 🏆 Kelas 3 SD ke atas | Pembagian, Pecahan, Soal Cerita, Pembagian Panjang | | |
+
 ## 🔢 Berhitung
 
 **Untuk si kecil**

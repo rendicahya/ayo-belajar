@@ -14,12 +14,13 @@ export const SUBJECTS = [
     title: 'Berhitung',
     icon: '🔢',
     color: 'var(--coral)',
+    // urut dari usia termuda; kartu di tiap tab diberi nomor sesuai urutan ini
     groups: [
-      { title: 'Untuk Si Kecil', modes: ['hitung', 'angka', 'tulis', 'benda', 'kelompok', 'ukuran'] },
-      { title: 'Berhitung Bersusun', modes: ['tambah', 'kurang', 'kali', 'bagi', 'porogapit'] },
-      { title: 'Mengenal Bilangan', modes: ['garis', 'nilai', 'banding', 'urut', 'pola', 'pecahan'] },
-      { title: 'Bangun & Ukuran', modes: ['bangun', 'ukur'] },
-      { title: 'Tantangan', modes: ['tabel', 'hasil', 'cerita', 'uang'] },
+      { icon: '🧸', title: 'Kelompok Bermain', age: '3–4 tahun', modes: ['ukuran', 'kelompok', 'hitung'] },
+      { icon: '🎨', title: 'TK', age: '4–6 tahun', modes: ['angka', 'tulis', 'benda', 'bangun'] },
+      { icon: '🎒', title: 'Kelas 1 SD', age: '6–7 tahun', modes: ['garis', 'banding', 'urut', 'tambah', 'kurang', 'uang'] },
+      { icon: '📚', title: 'Kelas 2 SD', age: '7–8 tahun', modes: ['nilai', 'pola', 'hasil', 'tabel', 'kali', 'ukur'] },
+      { icon: '🏆', title: 'Kelas 3 SD ke atas', age: '8+ tahun', modes: ['bagi', 'pecahan', 'cerita', 'porogapit'] },
     ],
   },
   {
@@ -27,7 +28,10 @@ export const SUBJECTS = [
     title: 'Menulis',
     icon: '✏️',
     color: 'var(--grape)',
-    groups: [{ title: 'Menulis Huruf', modes: ['hurufkecil', 'hurufbesar'] }],
+    groups: [
+      { icon: '🎨', title: 'TK A', age: '4–5 tahun', modes: ['hurufbesar'] },
+      { icon: '🖍️', title: 'TK B', age: '5–6 tahun', modes: ['hurufkecil'] },
+    ],
   },
   {
     id: 'membaca',
@@ -35,11 +39,15 @@ export const SUBJECTS = [
     icon: '📖',
     color: 'var(--sky)',
     groups: [
-      { title: 'Untuk Si Kecil', modes: ['huruf', 'sukukata'] },
-      { title: 'Kalimat', modes: ['kalimat'] },
+      { icon: '🎨', title: 'TK A', age: '4–5 tahun', modes: ['huruf'] },
+      { icon: '🖍️', title: 'TK B', age: '5–6 tahun', modes: ['sukukata'] },
+      { icon: '🎒', title: 'Kelas 1–2 SD', age: '6–8 tahun', modes: ['kalimat'] },
     ],
   },
 ];
+
+/** Kartu dianggap "siap lanjut" setelah Level 3 mendapat bintang. */
+export const NEXT_AFTER_LEVEL = 3;
 
 export const MODES = {
   hurufkecil: {
