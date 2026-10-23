@@ -5,7 +5,7 @@
   import { play } from '../lib/sound.js';
 
   const letterColors = ['var(--coral)', 'var(--sun)', 'var(--lime)', 'var(--sky)', 'var(--grape)', 'var(--pink)'];
-  const words = ['Pintar', 'Bermain'];
+  const words = ['Ayo', 'Belajar'];
   let n = 0;
   const title = words.map((w) => [...w].map((ch) => ({ ch, color: letterColors[n % 6], delay: n++ * 0.08 })));
 
@@ -39,7 +39,7 @@
 </script>
 
 <section class="hero">
-  <h1 aria-label="Pintar Bermain">
+  <h1 aria-label="Ayo Belajar">
     {#each title as word}
       <span class="word">
         {#each word as l}

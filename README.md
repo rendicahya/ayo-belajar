@@ -1,6 +1,6 @@
-# Pintar Bermain 🎒
+# Ayo Belajar 🎒
 
-**Main sekarang: https://rendicahya.github.io/pintar-bermain/**
+**Main sekarang: https://rendicahya.github.io/ayo-belajar/**
 
 Aplikasi web (frontend saja, Svelte 5 + Vite) untuk anak belajar berhitung, menulis, dan membaca dengan tampilan ceria dan ramah HP/tablet. Beranda punya tiga tab mata pelajaran: 🔢 Berhitung, ✏️ Menulis, dan 📖 Membaca. Tab terakhir yang dibuka diingat.
 
