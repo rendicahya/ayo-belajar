@@ -1,4 +1,5 @@
 import { ALPHABET, TRACE_WORDS } from './letters.js';
+import { COLORS as PAINTS, COLOR_PICTURES, DOT_PICTURES, GRID_COPY, GRID_HALF } from './drawings.js';
 
 export const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 export const pick = (arr) => arr[rand(0, arr.length - 1)];
@@ -724,10 +725,11 @@ export function genNumeral({ type, min = 1, max }) {
 // ---------- Menulis angka ----------
 
 let lastTrace = null;
-export function genTrace({ digits, twoDigit, letters, pairs, words }) {
+export function genTrace({ digits, twoDigit, letters, pairs, words, art }) {
   let v;
   do {
-    if (letters) v = pick([...letters]);
+    if (art) v = pick(art);
+    else if (letters) v = pick([...letters]);
     else if (pairs) {
       const c = pick(ALPHABET);
       v = c.toUpperCase() + c;
@@ -853,4 +855,75 @@ export function genSize({ type }) {
   const emoji = pick(BIG_THINGS);
   const sizes = [0.4, 0.6, 0.8, 1];
   return { items: shuffle(sizes).map((s) => ({ emoji, s })), order: sizes };
+}
+
+// ---------- Menggambar ----------
+
+const notLast = (pool, key) => {
+  const last = notLast[key];
+  const options = pool.length > 1 ? pool.filter((p) => p !== last) : pool;
+  return (notLast[key] = pick(options));
+};
+
+const RAINBOW = Object.keys(PAINTS);
+
+export function genColoring({ type, min = 1, max = 9, extra = 0 }) {
+  const pic = notLast(COLOR_PICTURES.filter((p) => p.regions.length >= min && p.regions.length <= max), 'color');
+  const used = [...new Set(pic.regions.map((r) => r.color))];
+  if (type === 'number') {
+    const numbers = Object.fromEntries(shuffle(used).map((c, i) => [c, i + 1]));
+    return { pic, type, numbers, palette: used.sort((a, b) => numbers[a] - numbers[b]) };
+  }
+  const others = shuffle(RAINBOW.filter((c) => !used.includes(c))).slice(0, type === 'word' ? 9 : extra);
+  return { pic, type, palette: RAINBOW.filter((c) => used.includes(c) || others.includes(c)) };
+}
+
+const ABC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+export function genDots({ type, min, max }) {
+  const pic = notLast(DOT_PICTURES.filter((p) => p.pts.length >= min && p.pts.length <= max), 'dots');
+  const labels = pic.pts.map((_, i) => (type === 'abc' ? ABC[i] : type === 'skip' ? String((i + 1) * 2) : String(i + 1)));
+  return { pic, type, labels };
+}
+
+/** Kunci satu ruas pendek antara dua titik bertetangga, tidak peduli arahnya. */
+export const segKey = ([x1, y1], [x2, y2]) => (x1 < x2 || (x1 === x2 && y1 < y2) ? `${x1},${y1},${x2},${y2}` : `${x2},${y2},${x1},${y1}`);
+
+/** Pecah garis lurus A→B menjadi ruas-ruas pendek; null kalau garisnya tidak mendatar, tegak, atau miring 45°. */
+export function lineUnits(a, b) {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const n = Math.max(Math.abs(dx), Math.abs(dy));
+  if (!n || (dx && dy && Math.abs(dx) !== Math.abs(dy))) return null;
+  const sx = Math.sign(dx);
+  const sy = Math.sign(dy);
+  return Array.from({ length: n }, (_, i) => segKey([a[0] + sx * i, a[1] + sy * i], [a[0] + sx * (i + 1), a[1] + sy * (i + 1)]));
+}
+
+const unitsOf = (lines) => [...new Set(lines.flatMap((pts) => pts.slice(1).flatMap((p, i) => lineUnits(pts[i], p))))];
+const parseSeg = (k) => {
+  const [x1, y1, x2, y2] = k.split(',').map(Number);
+  return [[x1, y1], [x2, y2]];
+};
+
+export function genGrid({ type, size, flip }) {
+  if (type === 'copy') {
+    const shape = notLast(GRID_COPY[size], 'grid');
+    const target = unitsOf(shape.lines);
+    return { type, name: shape.name, cols: size, rows: size, given: [], target, example: target };
+  }
+  const shape = notLast(GRID_HALF[size], 'grid');
+  const axis = (size - 1) / 2;
+  let cols = size;
+  let rows = size === 5 ? 5 : 6;
+  let lines = shape.lines;
+  if (flip) {
+    // cermin atas-bawah: putar separuh gambar sehingga garis cerminnya mendatar
+    lines = lines.map((pts) => pts.map(([x, y]) => [y, x]));
+    [cols, rows] = [rows, cols];
+  }
+  const given = unitsOf(lines);
+  const mirror = ([x, y]) => (flip ? [x, 2 * axis - y] : [2 * axis - x, y]);
+  const onAxis = ([x, y]) => (flip ? y : x) === axis;
+  const target = given.map(parseSeg).filter(([p, q]) => !(onAxis(p) && onAxis(q))).map(([p, q]) => segKey(mirror(p), mirror(q)));
+  return { type, name: shape.name, cols, rows, axis, flip, given, target };
 }

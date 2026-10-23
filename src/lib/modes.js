@@ -44,12 +44,103 @@ export const SUBJECTS = [
       { icon: '🎒', title: 'Kelas 1–2 SD', age: '6–8 tahun', modes: ['kalimat'] },
     ],
   },
+  {
+    id: 'menggambar',
+    title: 'Menggambar',
+    icon: '🎨',
+    color: 'var(--orange)',
+    groups: [
+      { icon: '🧸', title: 'Kelompok Bermain', age: '3–4 tahun', modes: ['garisbentuk', 'mewarnai'] },
+      { icon: '🎨', title: 'TK', age: '4–6 tahun', modes: ['titik', 'gambar'] },
+      { icon: '🎒', title: 'Kelas 1–2 SD', age: '6–8 tahun', modes: ['cermin'] },
+    ],
+    // halaman tanpa level, ditampilkan setelah kartu bernomor
+    extras: [{ href: '#/kanvas', icon: '🖌️', title: 'Kanvas Bebas', tagline: 'Gambar sesukamu, lalu simpan', color: 'var(--coral)' }],
+  },
 ];
 
 /** Kartu dianggap "siap lanjut" setelah Level 3 mendapat bintang. */
 export const NEXT_AFTER_LEVEL = 3;
 
+const allPictures = ['bola', 'matahari', 'balon', 'apel', 'rumah', 'ikan', 'pohon', 'eskrim', 'kucing', 'bunga', 'mobil', 'kupu'];
+
 export const MODES = {
+  garisbentuk: {
+    id: 'garisbentuk',
+    kind: 'trace',
+    title: 'Garis & Bentuk',
+    icon: '〰️',
+    color: 'var(--orange)',
+    tagline: 'Telusuri garis dan bentuk',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', art: ['tegak', 'datar', 'pagar'], guide: 'dots', desc: 'Garis tegak & mendatar' },
+      { emoji: '🐥', name: 'Lumayan', art: ['miring', 'gunung', 'petir'], guide: 'dots', desc: 'Garis miring & zigzag' },
+      { emoji: '🦊', name: 'Sedang', art: ['gelombang', 'bukit', 'pelangi1'], guide: 'dots', desc: 'Garis lengkung & gelombang' },
+      { emoji: '🦁', name: 'Sulit', art: ['lingkaran', 'telur', 'spiral'], guide: 'dots', desc: 'Lingkaran & spiral' },
+      { emoji: '🐉', name: 'Jago', art: ['segitiga', 'persegi', 'ketupat', 'bintang', 'hati'], guide: 'dots', desc: 'Segitiga, persegi, bintang, hati' },
+    ],
+  },
+  mewarnai: {
+    id: 'mewarnai',
+    kind: 'color',
+    title: 'Mewarnai',
+    icon: '🖍️',
+    color: 'var(--pink)',
+    tagline: 'Pilih warna, warnai gambarnya',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', type: 'guided', max: 2, extra: 2, desc: 'Ikuti petunjuk, 2 bagian' },
+      { emoji: '🐥', name: 'Lumayan', type: 'guided', min: 3, max: 4, extra: 3, desc: 'Ikuti petunjuk, 3–4 bagian' },
+      { emoji: '🦊', name: 'Sedang', type: 'number', max: 3, desc: 'Warnai sesuai angka' },
+      { emoji: '🦁', name: 'Sulit', type: 'number', min: 3, desc: 'Sesuai angka, lebih banyak warna' },
+      { emoji: '🐉', name: 'Jago', type: 'word', desc: 'Baca nama warnanya: merah, biru …' },
+    ],
+  },
+  titik: {
+    id: 'titik',
+    kind: 'dots',
+    title: 'Hubungkan Titik',
+    icon: '📍',
+    color: 'var(--indigo)',
+    tagline: 'Sambung titik, muncul gambar',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', type: 'count', min: 1, max: 5, desc: 'Titik 1 sampai 5' },
+      { emoji: '🐥', name: 'Lumayan', type: 'count', min: 6, max: 10, desc: 'Titik 1 sampai 10' },
+      { emoji: '🦊', name: 'Sedang', type: 'count', min: 11, max: 20, desc: 'Titik sampai 15' },
+      { emoji: '🦁', name: 'Sulit', type: 'skip', min: 4, max: 10, desc: 'Lompat dua: 2, 4, 6 …' },
+      { emoji: '🐉', name: 'Jago', type: 'abc', min: 4, max: 15, desc: 'Urutan huruf: A, B, C …' },
+    ],
+  },
+  gambar: {
+    id: 'gambar',
+    kind: 'trace',
+    title: 'Ayo Menggambar',
+    icon: '🖼️',
+    color: 'var(--sky)',
+    tagline: 'Gambar benda langkah demi langkah',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', art: ['bola', 'matahari', 'balon', 'apel'], guide: 'dots', desc: 'Bola, matahari, balon, apel' },
+      { emoji: '🐥', name: 'Lumayan', art: ['rumah', 'ikan', 'pohon', 'eskrim'], guide: 'dots', desc: 'Rumah, ikan, pohon, es krim' },
+      { emoji: '🦊', name: 'Sedang', art: ['kucing', 'bunga', 'mobil', 'kupu'], guide: 'dots', desc: 'Kucing, bunga, mobil, kupu-kupu' },
+      { emoji: '🦁', name: 'Sulit', art: allPictures, guide: 'faint', desc: 'Semua gambar, tanpa titik' },
+      { emoji: '🐉', name: 'Jago', art: ['roket', 'robot', 'perahu', 'pelangi'], guide: 'faint', desc: 'Roket, robot, perahu, pelangi' },
+    ],
+  },
+  cermin: {
+    id: 'cermin',
+    kind: 'grid',
+    title: 'Salin & Cermin',
+    icon: '🪞',
+    color: 'var(--teal)',
+    tagline: 'Gambar di kotak titik',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', type: 'copy', size: 4, desc: 'Salin gambar, kotak 4 × 4' },
+      { emoji: '🐥', name: 'Lumayan', type: 'copy', size: 5, desc: 'Salin gambar, kotak 5 × 5' },
+      { emoji: '🦊', name: 'Sedang', type: 'mirror', size: 5, desc: 'Cerminkan ke sebelah kanan' },
+      { emoji: '🦁', name: 'Sulit', type: 'mirror', size: 7, desc: 'Cerminkan gambar yang lebih besar' },
+      { emoji: '🐉', name: 'Jago', type: 'mirror', size: 7, flip: true, desc: 'Cerminkan ke bawah' },
+    ],
+  },
+
   hurufkecil: {
     id: 'hurufkecil',
     kind: 'trace',

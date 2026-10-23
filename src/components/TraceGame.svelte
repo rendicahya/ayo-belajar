@@ -3,6 +3,7 @@
   import { genTrace } from '../lib/generate.js';
   import { DIGIT_STROKES } from '../lib/digits.js';
   import { LETTER_STROKES, LETTER_LINES, letterName } from '../lib/letters.js';
+  import { TRACE_ART } from '../lib/drawings.js';
   import { play } from '../lib/sound.js';
   import { say } from '../lib/speech.js';
   import AskBar from './AskBar.svelte';
@@ -10,16 +11,22 @@
   let props = $props();
   const level = untrack(() => props.level);
   const value = genTrace(level);
-  const isNumber = /^\d+$/.test(value);
-  const glyphs = [...value].map((ch) => (isNumber ? { w: 100, s: DIGIT_STROKES[ch] } : LETTER_STROKES[ch]));
+  // gambar (garis, bentuk, benda) dari tab Menggambar, kotaknya 200 × 200
+  const art = level.art ? TRACE_ART[value] : null;
+  const isNumber = !art && /^\d+$/.test(value);
+  const isLetter = !art && !isNumber;
+  const glyphs = art ? [{ w: 200, s: art.s }] : [...value].map((ch) => (isNumber ? { w: 100, s: DIGIT_STROKES[ch] } : LETTER_STROKES[ch]));
   const lefts = glyphs.map((_, k) => glyphs.slice(0, k).reduce((x, g) => x + g.w, 0));
   const width = lefts.at(-1) + glyphs.at(-1).w;
   const strokes = glyphs.flatMap((g, k) => g.s.map((path) => ({ path, dx: lefts[k] })));
-  const height = isNumber ? 140 : LETTER_LINES.height;
+  const height = art ? 200 : isNumber ? 140 : LETTER_LINES.height;
   // huruf sempit (i, l) diberi ruang kiri-kanan supaya garis buku tulisnya tetap terlihat
-  const pad = isNumber ? 0 : Math.max(10, (150 - width) / 2);
+  const pad = isLetter ? Math.max(10, (150 - width) / 2) : 0;
+  const verb = art ? 'gambar' : 'tulis';
 
-  const what = isNumber
+  const what = art
+    ? { text: art.name, spoken: art.name }
+    : isNumber
     ? { text: `angka ${value}`, spoken: `angka ${value}` }
     : level.pairs
       ? { text: `huruf ${value[0]} dan ${value[1]}`, spoken: `huruf ${letterName(value[1])} besar dan ${letterName(value[1])} kecil` }
@@ -142,9 +149,10 @@
     }
     solved = true;
     pressed = false;
-    message = { text: `Hebat, kamu menulis ${what.text}!`, kind: 'ok' };
+    const did = art ? 'menggambar' : 'menulis';
+    message = { text: `Hebat, kamu ${did} ${what.text}!`, kind: 'ok' };
     play('correct');
-    say(`Hebat, kamu menulis ${what.spoken}!`);
+    say(`Hebat, kamu ${did} ${what.spoken}!`);
     props.onSolved(attempts === 0);
   }
 
@@ -156,7 +164,7 @@
   }
 </script>
 
-<AskBar text="Ayo tulis {what.text}!" spoken="Ayo tulis {what.spoken}!" />
+<AskBar text="Ayo {verb} {what.text}!" spoken="Ayo {verb} {what.spoken}!" />
 <p class="hint">Mulai dari titik hijau, lalu ikuti jalurnya dengan jari.</p>
 
 {#key shake}
@@ -164,8 +172,8 @@
     <svg
       bind:this={svg}
       viewBox="{-pad} 0 {width + 2 * pad} {height}"
-      class:wide={value.length > 1}
-      class:letters={!isNumber}
+      class:wide={!art && value.length > 1}
+      class:letters={isLetter}
       onpointerdown={down}
       onpointermove={moveTo}
       onpointerup={lift}
@@ -173,17 +181,20 @@
       role="img"
       aria-label="Jalur {what.text}"
     >
-      {#if !isNumber}
+      {#if isLetter}
         {#each ['top', 'mid', 'base', 'low'] as k}
           <line x1={-pad} x2={width + pad} y1={LETTER_LINES[k]} y2={LETTER_LINES[k]} class="rule {k}" />
         {/each}
       {/if}
+      {#if solved && art?.fill}
+        {#each art.fill as f}<path d={f.d} style="fill:{f.c}" class="fill" />{/each}
+      {/if}
       {#each strokes as s, i}
         <g transform="translate({s.dx} 0)">
-          <path d={s.path} class="road" class:faint={level.guide === 'faint'} bind:this={pathEls[i]} />
+          <path d={s.path} class="road" class:faint={level.guide === 'faint'} class:gone={solved && art} bind:this={pathEls[i]} />
           {#if level.guide === 'dots' && !solved}<path d={s.path} class="dots" />{/if}
           {#if frac(i) > 0}
-            <path d={s.path} class="ink" class:done={solved} pathLength="1" stroke-dasharray="{frac(i)} 2" />
+            <path d={s.path} class="ink" class:done={solved} class:art pathLength="1" stroke-dasharray="{frac(i)} 2" />
           {/if}
           {#if demo && !solved}
             {#key demo}
@@ -279,6 +290,10 @@
     opacity: 0.55;
   }
 
+  .road.gone {
+    opacity: 0;
+  }
+
   .dots {
     stroke: var(--dash);
     stroke-width: 4;
@@ -292,6 +307,18 @@
 
   .ink.done {
     stroke: var(--ok);
+  }
+
+  /* gambar yang sudah selesai diberi warna, garisnya jadi seperti buku mewarnai */
+  .ink.done.art {
+    stroke: var(--ink);
+    stroke-width: 7;
+  }
+
+  path.fill {
+    stroke: none;
+    fill-rule: evenodd;
+    animation: fade 0.5s ease-out;
   }
 
   .demo {

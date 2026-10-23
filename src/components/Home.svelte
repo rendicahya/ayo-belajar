@@ -48,7 +48,7 @@
       </span>
     {/each}
   </h1>
-  <p class="sub">Ayo belajar berhitung, menulis, dan membaca sambil bermain! 🎈</p>
+  <p class="sub">Belajar berhitung, menulis, membaca, dan menggambar sambil bermain! 🎈</p>
 </section>
 
 <section class="stats">
@@ -133,6 +133,23 @@
   </section>
 {/each}
 
+{#if subject.extras}
+  <h2 class="group">
+    <span class="g-icon">✨</span>
+    <span>Bebas berkreasi</span>
+    <span class="age">Semua usia</span>
+  </h2>
+  <section class="modes">
+    {#each subject.extras as x}
+      <a class="mode" href={x.href} style="--c:{x.color}; --tilt:-1.5deg">
+        <span class="icon">{x.icon}</span>
+        <span class="name">{x.title}</span>
+        <span class="tagline">{x.tagline}</span>
+      </a>
+    {/each}
+  </section>
+{/if}
+
 <style>
   .hero {
     text-align: center;
@@ -209,8 +226,8 @@
   }
 
   .subjects {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     margin-top: 18px;
     padding: 6px;
@@ -220,13 +237,14 @@
   }
 
   .subject {
+    flex: 1 1 100px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
     padding: 10px 6px;
     border-radius: var(--radius);
-    font-size: clamp(1rem, 4.2vw, 1.2rem);
+    font-size: clamp(1rem, 4vw, 1.15rem);
     font-weight: 600;
     color: var(--muted);
     transition:
@@ -245,12 +263,6 @@
     line-height: 1;
   }
 
-  @media (max-width: 380px) {
-    .subject {
-      flex-direction: column;
-      gap: 2px;
-    }
-  }
 
   .next {
     display: flex;

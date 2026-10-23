@@ -5,6 +5,7 @@
   import LevelSelect from './components/LevelSelect.svelte';
   import Game from './components/Game.svelte';
   import StickerAlbum from './components/StickerAlbum.svelte';
+  import CanvasPage from './components/CanvasPage.svelte';
 
   let hash = $state(location.hash);
   applyTheme();
@@ -22,6 +23,7 @@
   const route = $derived.by(() => {
     const [modeId, levelNo] = hash.replace(/^#\/?/, '').split('/');
     if (modeId === 'stiker') return { page: 'stickers', back: '#/', title: 'Album Stiker', icon: '📒' };
+    if (modeId === 'kanvas') return { page: 'canvas', back: '#/', title: 'Kanvas Bebas', icon: '🖌️' };
     const mode = MODES[modeId];
     if (!mode) return { page: 'home' };
     const levelIndex = Number(levelNo) - 1;
@@ -91,6 +93,8 @@
         <Home />
       {:else if route.page === 'stickers'}
         <StickerAlbum />
+      {:else if route.page === 'canvas'}
+        <CanvasPage />
       {:else if route.page === 'levels'}
         <LevelSelect mode={route.mode} />
       {:else}

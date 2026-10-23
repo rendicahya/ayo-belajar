@@ -2,20 +2,22 @@
 
 **Main sekarang: https://rendicahya.github.io/ayo-belajar/**
 
-Aplikasi web (frontend saja, Svelte 5 + Vite) untuk anak belajar berhitung, menulis, dan membaca dengan tampilan ceria dan ramah HP/tablet. Beranda punya tiga tab mata pelajaran: 🔢 Berhitung, ✏️ Menulis, dan 📖 Membaca. Tab terakhir yang dibuka diingat.
+Aplikasi web (frontend saja, Svelte 5 + Vite) untuk anak belajar berhitung, menulis, membaca, dan menggambar dengan tampilan ceria dan ramah HP/tablet. Beranda punya tab mata pelajaran: 🔢 Berhitung, ✏️ Menulis, 📖 Membaca, dan 🎨 Menggambar. Tab terakhir yang dibuka diingat.
 
 ## 🧭 Urutan belajar
 
 Di setiap tab, kartu dikelompokkan menurut usia dan diberi nomor urut. Setiap kartu menampilkan titik progres untuk lima levelnya. Kartu **Lanjut belajar** di atas daftar langsung membuka kartu dan level berikutnya. Saran pindah kartu muncul setelah Level 3 mendapat bintang. Usia hanya patokan.
 
-| Tahap | 🔢 Berhitung | ✏️ Menulis | 📖 Membaca |
-|---|---|---|---|
-| 🧸 Kelompok Bermain (3–4 th) | Besar & Kecil, Mengelompokkan, Menghitung Benda | | |
-| 🎨 TK A (4–5 th) | Mengenal Angka, Menulis Angka, Tambah & Kurang Benda, Bangun Datar *(untuk TK 4–6 th)* | Huruf Besar | Mengenal Huruf |
-| 🖍️ TK B (5–6 th) | | Huruf Kecil | Suku Kata |
-| 🎒 Kelas 1 SD | Garis Bilangan, Perbandingan, Mengurutkan, Penjumlahan, Pengurangan, Uang & Belanja | | Menyusun Kalimat *(kelas 1–2)* |
-| 📚 Kelas 2 SD | Nilai Tempat, Pola Bilangan, Bandingkan Hasil, Tabel Perkalian, Perkalian, Satuan Ukur | | |
-| 🏆 Kelas 3 SD ke atas | Pembagian, Pecahan, Soal Cerita, Pembagian Panjang | | |
+| Tahap | 🔢 Berhitung | ✏️ Menulis | 📖 Membaca | 🎨 Menggambar |
+|---|---|---|---|---|
+| 🧸 Kelompok Bermain (3–4 th) | Besar & Kecil, Mengelompokkan, Menghitung Benda | | | Garis & Bentuk, Mewarnai |
+| 🎨 TK A (4–5 th) | Mengenal Angka, Menulis Angka, Tambah & Kurang Benda, Bangun Datar *(untuk TK 4–6 th)* | Huruf Besar | Mengenal Huruf | Hubungkan Titik, Ayo Menggambar *(untuk TK 4–6 th)* |
+| 🖍️ TK B (5–6 th) | | Huruf Kecil | Suku Kata | |
+| 🎒 Kelas 1 SD | Garis Bilangan, Perbandingan, Mengurutkan, Penjumlahan, Pengurangan, Uang & Belanja | | Menyusun Kalimat *(kelas 1–2)* | Salin & Cermin *(kelas 1–2)* |
+| 📚 Kelas 2 SD | Nilai Tempat, Pola Bilangan, Bandingkan Hasil, Tabel Perkalian, Perkalian, Satuan Ukur | | | |
+| 🏆 Kelas 3 SD ke atas | Pembagian, Pecahan, Soal Cerita, Pembagian Panjang | | | |
+
+Tab Menggambar juga punya **Kanvas Bebas** untuk semua usia.
 
 ## 🔢 Berhitung
 
@@ -69,6 +71,15 @@ Kalau jawabannya benar tapi simpanan, pinjaman, atau sisa kecilnya tidak ditulis
 
 Huruf dibacakan dengan nama Indonesianya (a, be, ce, …). Saat menyusun, keping yang salah tempat dikembalikan sendiri, yang sudah benar tetap di tempatnya.
 
+## 🎨 Menggambar
+
+- **Garis & bentuk:** menelusuri garis tegak, mendatar, miring, zigzag, lengkung, gelombang, lingkaran, spiral, lalu segitiga, persegi, belah ketupat, bintang, dan hati. Bentuk yang selesai langsung berwarna.
+- **Mewarnai:** pilih warna lalu ketuk bagian gambar. Mula-mula mengikuti petunjuk yang dibacakan ("Warnai daun dengan warna hijau"), lalu mewarnai sesuai angka, dan terakhir membaca nama warnanya (*merah*, *biru*, …). Nama warna dibacakan saat diketuk.
+- **Hubungkan titik:** ketuk titik 1 sampai 5, sampai 10, dan sampai 15, lalu lompat dua (2, 4, 6, …) dan urutan huruf A, B, C. Setelah semua titik tersambung, gambarnya muncul dan berwarna.
+- **Ayo menggambar:** menggambar benda langkah demi langkah dengan menelusuri goresannya, dari bola dan matahari sampai kucing, kupu-kupu, roket, dan robot. Gambar yang selesai diwarnai otomatis.
+- **Salin & cermin:** tarik garis di kotak titik (atau ketuk dua titik) untuk menyalin gambar contoh, lalu mencerminkan separuh gambar ke kanan atau ke bawah. Garis yang salah ditolak, dan petunjuk muncul setelah 2 kali salah.
+- **Kanvas bebas:** 9 warna krayon, 3 ukuran kuas, penghapus, stempel ⭐❤️🌸🐱, batal, dan simpan gambar sebagai PNG. Gambar tersimpan di perangkat sampai dihapus.
+
 ## Fitur belajar
 - 💡 **Petunjuk:** menyorot kolom yang sedang dikerjakan dan menjelaskan langkahnya, misalnya "7 + 5 = 12, tulis 2, simpan 1".
 - 👀 **Lihat cara:** setelah 2 kali salah, cara menjawab bisa diputar langkah demi langkah.
@@ -105,6 +116,7 @@ Struktur singkat:
 - `src/lib/generate.js`: pembuat soal mode berhitung
 - `src/lib/words.js`: daftar kata bergambar, suku kata, kalimat, dan pembuat soal mode membaca
 - `src/lib/letters.js`, `src/lib/digits.js`: jalur goresan huruf dan angka untuk mode menulis
+- `src/lib/drawings.js`: gambar untuk tab Menggambar (jalur telusur, bagian mewarnai, titik, dan pola kotak titik)
 - `src/lib/board.js`: model papan bersusun beserta langkah penyelesaiannya (dipakai Petunjuk & Lihat cara)
 - `src/lib/boardState.svelte.js`: state interaktif papan (isi, cek, petunjuk)
 - `src/components/`: tampilan tiap mode

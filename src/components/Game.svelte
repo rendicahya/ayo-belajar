@@ -22,6 +22,9 @@
   import LetterGame from './LetterGame.svelte';
   import SyllableGame from './SyllableGame.svelte';
   import SentenceGame from './SentenceGame.svelte';
+  import ColorGame from './ColorGame.svelte';
+  import DotsGame from './DotsGame.svelte';
+  import GridGame from './GridGame.svelte';
   import { TOTAL_ROUNDS } from '../lib/modes.js';
   import { pick } from '../lib/generate.js';
   import { confetti } from '../lib/confetti.js';
@@ -54,6 +57,9 @@
     letter: LetterGame,
     syllable: SyllableGame,
     sentence: SentenceGame,
+    color: ColorGame,
+    dots: DotsGame,
+    grid: GridGame,
   };
   const praises = ['Hebat!', 'Pintar!', 'Keren!', 'Luar biasa!', 'Mantap!', 'Jago!', 'Benar sekali!'];
   const cheers = ['🎉', '🥳', '🌟', '🚀', '🦄', '🐯', '🍭'];
