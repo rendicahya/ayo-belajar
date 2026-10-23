@@ -19,6 +19,9 @@
   import ObjOpGame from './ObjOpGame.svelte';
   import GroupGame from './GroupGame.svelte';
   import SizeGame from './SizeGame.svelte';
+  import LetterGame from './LetterGame.svelte';
+  import SyllableGame from './SyllableGame.svelte';
+  import SentenceGame from './SentenceGame.svelte';
   import { TOTAL_ROUNDS } from '../lib/modes.js';
   import { pick } from '../lib/generate.js';
   import { confetti } from '../lib/confetti.js';
@@ -48,6 +51,9 @@
     objop: ObjOpGame,
     group: GroupGame,
     size: SizeGame,
+    letter: LetterGame,
+    syllable: SyllableGame,
+    sentence: SentenceGame,
   };
   const praises = ['Hebat!', 'Pintar!', 'Keren!', 'Luar biasa!', 'Mantap!', 'Jago!', 'Benar sekali!'];
   const cheers = ['🎉', '🥳', '🌟', '🚀', '🦄', '🐯', '🍭'];

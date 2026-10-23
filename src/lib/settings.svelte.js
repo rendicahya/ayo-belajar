@@ -22,6 +22,11 @@ function save(key, value) {
 
 export const settings = $state({ muted: false, ...load(SETTINGS_KEY) });
 
+export function setSubject(id) {
+  settings.subject = id;
+  save(SETTINGS_KEY, settings);
+}
+
 export function toggleMute() {
   settings.muted = !settings.muted;
   save(SETTINGS_KEY, settings);

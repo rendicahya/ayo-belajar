@@ -8,15 +8,116 @@ const columnLevels = [
   { emoji: '🐉', name: 'Jago', count: 3, digits: 3 },
 ].map((l) => ({ ...l, desc: `${l.count} bilangan, ${l.digits} digit` }));
 
-export const GROUPS = [
-  { title: 'Untuk Si Kecil', modes: ['hitung', 'angka', 'tulis', 'benda', 'kelompok', 'ukuran'] },
-  { title: 'Berhitung Bersusun', modes: ['tambah', 'kurang', 'kali', 'bagi', 'porogapit'] },
-  { title: 'Mengenal Bilangan', modes: ['garis', 'nilai', 'banding', 'urut', 'pola', 'pecahan'] },
-  { title: 'Bangun & Ukuran', modes: ['bangun', 'ukur'] },
-  { title: 'Tantangan', modes: ['tabel', 'hasil', 'cerita', 'uang'] },
+export const SUBJECTS = [
+  {
+    id: 'berhitung',
+    title: 'Berhitung',
+    icon: '🔢',
+    color: 'var(--coral)',
+    groups: [
+      { title: 'Untuk Si Kecil', modes: ['hitung', 'angka', 'tulis', 'benda', 'kelompok', 'ukuran'] },
+      { title: 'Berhitung Bersusun', modes: ['tambah', 'kurang', 'kali', 'bagi', 'porogapit'] },
+      { title: 'Mengenal Bilangan', modes: ['garis', 'nilai', 'banding', 'urut', 'pola', 'pecahan'] },
+      { title: 'Bangun & Ukuran', modes: ['bangun', 'ukur'] },
+      { title: 'Tantangan', modes: ['tabel', 'hasil', 'cerita', 'uang'] },
+    ],
+  },
+  {
+    id: 'menulis',
+    title: 'Menulis',
+    icon: '✏️',
+    color: 'var(--grape)',
+    groups: [{ title: 'Menulis Huruf', modes: ['hurufkecil', 'hurufbesar'] }],
+  },
+  {
+    id: 'membaca',
+    title: 'Membaca',
+    icon: '📖',
+    color: 'var(--sky)',
+    groups: [
+      { title: 'Untuk Si Kecil', modes: ['huruf', 'sukukata'] },
+      { title: 'Kalimat', modes: ['kalimat'] },
+    ],
+  },
 ];
 
 export const MODES = {
+  hurufkecil: {
+    id: 'hurufkecil',
+    kind: 'trace',
+    title: 'Huruf Kecil',
+    icon: 'abc',
+    color: 'var(--grape)',
+    tagline: 'Telusuri huruf a sampai z',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', letters: 'litvwxzk', guide: 'dots', desc: 'Garis lurus: l, i, t, v, x …' },
+      { emoji: '🐥', name: 'Lumayan', letters: 'coadegqs', guide: 'dots', desc: 'Lengkung: c, o, a, d, e …' },
+      { emoji: '🦊', name: 'Sedang', letters: 'nmhrubpjfy', guide: 'dots', desc: 'Naik-turun: n, m, h, r, u …' },
+      { emoji: '🦁', name: 'Sulit', letters: 'abcdefghijklmnopqrstuvwxyz', guide: 'faint', desc: 'Semua huruf, tanpa titik' },
+      { emoji: '🐉', name: 'Jago', words: true, guide: 'faint', desc: 'Kata pendek: ibu, bola, buku …' },
+    ],
+  },
+  hurufbesar: {
+    id: 'hurufbesar',
+    kind: 'trace',
+    title: 'Huruf Besar',
+    icon: 'ABC',
+    color: 'var(--pink)',
+    tagline: 'Telusuri huruf A sampai Z',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', letters: 'LTIHEF', guide: 'dots', desc: 'Garis lurus: L, T, I, H, E, F' },
+      { emoji: '🐥', name: 'Lumayan', letters: 'AVWXYZKMN', guide: 'dots', desc: 'Garis miring: A, V, W, X …' },
+      { emoji: '🦊', name: 'Sedang', letters: 'OCGSUJDPBRQ', guide: 'dots', desc: 'Lengkung: O, C, G, S, U …' },
+      { emoji: '🦁', name: 'Sulit', letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', guide: 'faint', desc: 'Semua huruf, tanpa titik' },
+      { emoji: '🐉', name: 'Jago', pairs: true, guide: 'faint', desc: 'Pasangan huruf: Aa, Bb, Cc …' },
+    ],
+  },
+  huruf: {
+    id: 'huruf',
+    kind: 'letter',
+    title: 'Mengenal Huruf',
+    icon: '🔤',
+    color: 'var(--sky)',
+    tagline: 'Dengar, lalu cari hurufnya',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', type: 'listen', pool: 'vowel', desc: 'Huruf vokal: a, i, u, e, o' },
+      { emoji: '🐥', name: 'Lumayan', type: 'listen', pool: 'all', desc: 'Semua huruf a sampai z' },
+      { emoji: '🦊', name: 'Sedang', type: 'case', desc: 'Pasangkan huruf besar & kecil' },
+      { emoji: '🦁', name: 'Sulit', type: 'initial', desc: 'Huruf awal gambar: 🐱 → k' },
+      { emoji: '🐉', name: 'Jago', type: 'neighbor', desc: 'Huruf sebelum & sesudah' },
+    ],
+  },
+  sukukata: {
+    id: 'sukukata',
+    kind: 'syllable',
+    title: 'Suku Kata',
+    icon: 'ba',
+    color: 'var(--orange)',
+    tagline: 'Ba-bi-bu, lalu jadi kata',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', type: 'vowel', desc: 'Dengar: ba, bi, bu, be, bo' },
+      { emoji: '🐥', name: 'Lumayan', type: 'mixed', desc: 'Dengar suku kata campuran' },
+      { emoji: '🦊', name: 'Sedang', type: 'build', count: 2, desc: 'Susun 2 suku kata: sa-pi' },
+      { emoji: '🦁', name: 'Sulit', type: 'build', count: 3, desc: 'Susun 3 suku kata: se-pa-tu' },
+      { emoji: '🐉', name: 'Jago', type: 'read', desc: 'Baca kata, pilih gambarnya' },
+    ],
+  },
+  kalimat: {
+    id: 'kalimat',
+    kind: 'sentence',
+    title: 'Menyusun Kalimat',
+    icon: '💬',
+    color: 'var(--teal)',
+    tagline: 'Kata demi kata jadi kalimat',
+    levels: [
+      { emoji: '🐣', name: 'Mudah', type: 'blank', desc: 'Lengkapi kata yang hilang' },
+      { emoji: '🐥', name: 'Lumayan', type: 'build', words: 3, desc: 'Susun 3 kata' },
+      { emoji: '🦊', name: 'Sedang', type: 'build', words: 4, desc: 'Susun 4 kata' },
+      { emoji: '🦁', name: 'Sulit', type: 'build', words: 5, desc: 'Susun 5 kata atau lebih' },
+      { emoji: '🐉', name: 'Jago', type: 'correct', desc: 'Huruf kapital & tanda titik' },
+    ],
+  },
+
   hitung: {
     id: 'hitung',
     kind: 'count',

@@ -1,7 +1,7 @@
 {
-  "name": "jago-berhitung",
+  "name": "pintar-bermain",
   "version": "1.0.0",
-  "description": "Aplikasi belajar berhitung bersusun untuk anak",
+  "description": "Aplikasi belajar berhitung, menulis, dan membaca untuk anak",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,9 +11,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rendicahya/jago-berhitung.git"
+    "url": "git+https://github.com/rendicahya/pintar-bermain.git"
   },
-  "homepage": "https://rendicahya.github.io/jago-berhitung/",
+  "homepage": "https://rendicahya.github.io/pintar-bermain/",
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "svelte": "^5.57.2",

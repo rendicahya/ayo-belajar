@@ -30,7 +30,7 @@
   {#if route.back}
     <a class="round" href={route.back} aria-label="Kembali">←</a>
   {:else}
-    <span class="round logo" aria-hidden="true">🧮</span>
+    <span class="round logo" aria-hidden="true">🎒</span>
   {/if}
   <div class="title">
     {#if route.mode}

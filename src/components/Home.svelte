@@ -1,20 +1,28 @@
 <script>
-  import { MODES, GROUPS } from '../lib/modes.js';
+  import { MODES, SUBJECTS } from '../lib/modes.js';
   import { STICKERS } from '../lib/stickers.js';
-  import { progress, streak, practicedToday, unlockedStickers } from '../lib/settings.svelte.js';
+  import { settings, setSubject, progress, streak, practicedToday, unlockedStickers } from '../lib/settings.svelte.js';
+  import { play } from '../lib/sound.js';
 
   const letterColors = ['var(--coral)', 'var(--sun)', 'var(--lime)', 'var(--sky)', 'var(--grape)', 'var(--pink)'];
-  const words = ['Jago', 'Berhitung'];
+  const words = ['Pintar', 'Bermain'];
   let n = 0;
   const title = words.map((w) => [...w].map((ch) => ({ ch, color: letterColors[n % 6], delay: n++ * 0.08 })));
 
   const days = $derived(streak());
   const today = $derived(practicedToday());
   const stickers = $derived(unlockedStickers());
+  const subject = $derived(SUBJECTS.find((s) => s.id === settings.subject) ?? SUBJECTS[0]);
+
+  function choose(s) {
+    if (s.id === subject.id) return;
+    play('tap');
+    setSubject(s.id);
+  }
 </script>
 
 <section class="hero">
-  <h1 aria-label="Jago Berhitung">
+  <h1 aria-label="Pintar Bermain">
     {#each title as word}
       <span class="word">
         {#each word as l}
@@ -23,7 +31,7 @@
       </span>
     {/each}
   </h1>
-  <p class="sub">Ayo belajar berhitung sambil bermain! 🎈</p>
+  <p class="sub">Ayo belajar berhitung, menulis, dan membaca sambil bermain! 🎈</p>
 </section>
 
 <section class="stats">
@@ -48,7 +56,22 @@
   </a>
 </section>
 
-{#each GROUPS as group}
+<div class="subjects" role="tablist" aria-label="Mata pelajaran">
+  {#each SUBJECTS as s}
+    <button
+      class="subject"
+      class:on={s.id === subject.id}
+      style="--c:{s.color}"
+      role="tab"
+      aria-selected={s.id === subject.id}
+      onclick={() => choose(s)}
+    >
+      <span class="s-icon">{s.icon}</span>{s.title}
+    </button>
+  {/each}
+</div>
+
+{#each subject.groups as group (group.title + subject.id)}
   <h2 class="group">{group.title}</h2>
   <section class="modes">
     {#each group.modes.map((id) => MODES[id]) as mode, i}
@@ -134,6 +157,50 @@
 
   .album:active {
     transform: scale(0.98);
+  }
+
+  .subjects {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 18px;
+    padding: 6px;
+    border-radius: calc(var(--radius) + 6px);
+    background: var(--card);
+    box-shadow: var(--shadow);
+  }
+
+  .subject {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 6px;
+    border-radius: var(--radius);
+    font-size: clamp(1rem, 4.2vw, 1.2rem);
+    font-weight: 600;
+    color: var(--muted);
+    transition:
+      background 0.15s,
+      color 0.15s;
+  }
+
+  .subject.on {
+    background: var(--c);
+    color: #fff;
+    box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.15);
+  }
+
+  .s-icon {
+    font-size: 1.3em;
+    line-height: 1;
+  }
+
+  @media (max-width: 380px) {
+    .subject {
+      flex-direction: column;
+      gap: 2px;
+    }
   }
 
   .group {

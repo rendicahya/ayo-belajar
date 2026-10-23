@@ -1,10 +1,10 @@
-# Jago Berhitung 🧮
+# Pintar Bermain 🎒
 
-**Main sekarang: https://rendicahya.github.io/jago-berhitung/**
+**Main sekarang: https://rendicahya.github.io/pintar-bermain/**
 
-Aplikasi web (frontend saja, Svelte 5 + Vite) untuk anak belajar berhitung dengan tampilan ceria dan ramah HP/tablet.
+Aplikasi web (frontend saja, Svelte 5 + Vite) untuk anak belajar berhitung, menulis, dan membaca dengan tampilan ceria dan ramah HP/tablet. Beranda punya tiga tab mata pelajaran: 🔢 Berhitung, ✏️ Menulis, dan 📖 Membaca. Tab terakhir yang dibuka diingat.
 
-## Mode permainan
+## 🔢 Berhitung
 
 **Untuk si kecil**
 - **Menghitung benda:** menghitung hewan 🐱🐶🐰 sampai 5 dan sampai 10, mengambil hewan sebanyak yang diminta, menghitung satu jenis hewan di antara hewan lain, dan memilih kelompok yang lebih banyak atau lebih sedikit. Setiap hewan bisa diketuk untuk diberi nomor sambil dibacakan, pertanyaan dibacakan otomatis, dan ada bantuan "Hitung bersama".
@@ -43,6 +43,19 @@ Kalau jawabannya benar tapi simpanan, pinjaman, atau sisa kecilnya tidak ditulis
 - **Soal cerita:** baca ceritanya (bisa dibacakan), pilih operasi yang tepat, lalu kerjakan secara bersusun.
 - **Uang & belanja:** menghitung uang rupiah, membayar dengan uang pas, menghitung total belanja di warung, dan menghitung kembalian.
 
+## ✏️ Menulis
+
+- **Huruf kecil:** menelusuri huruf a–z di garis buku tulis (garis atas, tengah, dasar, dan bawah), mulai dari titik hijau dan mengikuti arah menulis. Level garis lurus, lengkung, naik-turun, semua huruf tanpa titik bantuan, lalu kata pendek seperti *ibu*, *bola*, *buku*.
+- **Huruf besar:** menelusuri huruf A–Z, dari garis lurus, garis miring, lengkung, semua huruf, sampai pasangan huruf besar–kecil (Aa, Bb, …).
+
+## 📖 Membaca
+
+- **Mengenal huruf:** mendengar huruf lalu mengetuknya (vokal dulu, lalu semua huruf), memasangkan huruf besar dengan huruf kecil (huruf yang mirip seperti b/d/p/q sengaja dicampur), huruf awal gambar (🐱 → k), dan huruf sebelum/sesudah dalam abjad.
+- **Suku kata:** mendengar suku kata (ba-bi-bu-be-bo, lalu campuran), menyusun 2 atau 3 suku kata menjadi kata sesuai gambar, dan membaca kata lalu memilih gambarnya.
+- **Menyusun kalimat:** melengkapi kata yang hilang, menyusun 3 sampai 6 kata menjadi kalimat, dan memilih kalimat yang ditulis dengan benar (huruf kapital, tanda titik, urutan kata).
+
+Huruf dibacakan dengan nama Indonesianya (a, be, ce, …). Saat menyusun, keping yang salah tempat dikembalikan sendiri, yang sudah benar tetap di tempatnya.
+
 ## Fitur belajar
 - 💡 **Petunjuk:** menyorot kolom yang sedang dikerjakan dan menjelaskan langkahnya, misalnya "7 + 5 = 12, tulis 2, simpan 1".
 - 👀 **Lihat cara:** setelah 2 kali salah, cara menjawab bisa diputar langkah demi langkah.
@@ -75,7 +88,9 @@ npm run preview  # coba hasil build
 ```
 
 Struktur singkat:
-- `src/lib/generate.js`: pembuat soal untuk semua mode
+- `src/lib/generate.js`: pembuat soal mode berhitung
+- `src/lib/words.js`: daftar kata bergambar, suku kata, kalimat, dan pembuat soal mode membaca
+- `src/lib/letters.js`, `src/lib/digits.js`: jalur goresan huruf dan angka untuk mode menulis
 - `src/lib/board.js`: model papan bersusun beserta langkah penyelesaiannya (dipakai Petunjuk & Lihat cara)
 - `src/lib/boardState.svelte.js`: state interaktif papan (isi, cek, petunjuk)
 - `src/components/`: tampilan tiap mode

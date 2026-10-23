@@ -1,7 +1,7 @@
 {
-  "name": "Jago Berhitung",
-  "short_name": "Jago Hitung",
-  "description": "Belajar berhitung bersusun, nilai tempat, membandingkan, dan mengurutkan bilangan sambil bermain.",
+  "name": "Pintar Bermain",
+  "short_name": "Pintar Bermain",
+  "description": "Belajar berhitung, menulis huruf, dan membaca suku kata serta kalimat sambil bermain.",
   "lang": "id",
   "start_url": "./",
   "scope": "./",

@@ -1,3 +1,5 @@
+import { ALPHABET, TRACE_WORDS } from './letters.js';
+
 export const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 export const pick = (arr) => arr[rand(0, arr.length - 1)];
 
@@ -722,10 +724,17 @@ export function genNumeral({ type, min = 1, max }) {
 // ---------- Menulis angka ----------
 
 let lastTrace = null;
-export function genTrace({ digits, twoDigit }) {
+export function genTrace({ digits, twoDigit, letters, pairs, words }) {
   let v;
-  do v = String(twoDigit ? rand(10, 20) : pick(digits));
-  while (v === lastTrace);
+  do {
+    if (letters) v = pick([...letters]);
+    else if (pairs) {
+      const c = pick(ALPHABET);
+      v = c.toUpperCase() + c;
+    }
+    else if (words) v = pick(TRACE_WORDS);
+    else v = String(twoDigit ? rand(10, 20) : pick(digits));
+  } while (v === lastTrace);
   return (lastTrace = v);
 }
 

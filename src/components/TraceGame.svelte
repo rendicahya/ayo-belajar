@@ -2,6 +2,7 @@
   import { untrack, onMount, onDestroy } from 'svelte';
   import { genTrace } from '../lib/generate.js';
   import { DIGIT_STROKES } from '../lib/digits.js';
+  import { LETTER_STROKES, LETTER_LINES, letterName } from '../lib/letters.js';
   import { play } from '../lib/sound.js';
   import { say } from '../lib/speech.js';
   import AskBar from './AskBar.svelte';
@@ -9,14 +10,28 @@
   let props = $props();
   const level = untrack(() => props.level);
   const value = genTrace(level);
-  const strokes = [...value].flatMap((d, k) => DIGIT_STROKES[d].map((path) => ({ path, dx: k * 100 })));
-  const width = value.length * 100;
+  const isNumber = /^\d+$/.test(value);
+  const glyphs = [...value].map((ch) => (isNumber ? { w: 100, s: DIGIT_STROKES[ch] } : LETTER_STROKES[ch]));
+  const lefts = glyphs.map((_, k) => glyphs.slice(0, k).reduce((x, g) => x + g.w, 0));
+  const width = lefts.at(-1) + glyphs.at(-1).w;
+  const strokes = glyphs.flatMap((g, k) => g.s.map((path) => ({ path, dx: lefts[k] })));
+  const height = isNumber ? 140 : LETTER_LINES.height;
+  // huruf sempit (i, l) diberi ruang kiri-kanan supaya garis buku tulisnya tetap terlihat
+  const pad = isNumber ? 0 : Math.max(10, (150 - width) / 2);
+
+  const what = isNumber
+    ? { text: `angka ${value}`, spoken: `angka ${value}` }
+    : level.pairs
+      ? { text: `huruf ${value[0]} dan ${value[1]}`, spoken: `huruf ${letterName(value[1])} besar dan ${letterName(value[1])} kecil` }
+      : value.length > 1
+        ? { text: `kata ${value}`, spoken: `kata ${value}` }
+        : { text: `huruf ${value}`, spoken: `huruf ${letterName(value)}` };
 
   const STEP = 5; // jarak antar titik periksa
   const NEAR = 16; // jari dianggap menyentuh titik periksa
   const OFF = 28; // jari dianggap keluar jalur
 
-  let svg;
+  let svg = $state();
   const pathEls = [];
   let cps = $state([]); // titik periksa tiap goresan
   let cur = $state(0); // goresan yang sedang ditulis
@@ -55,7 +70,10 @@
     if (i > cur || !cps[i]) return 0;
     return Math.max(0, prog - 1) / (cps[i].length - 1);
   };
-  const angle = (pts) => (Math.atan2(pts[3][1] - pts[0][1], pts[3][0] - pts[0][0]) * 180) / Math.PI;
+  const angle = (pts) => {
+    const q = pts[Math.min(3, pts.length - 1)];
+    return (Math.atan2(q[1] - pts[0][1], q[0] - pts[0][0]) * 180) / Math.PI;
+  };
   const dist = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1]);
 
   function toSvg(e) {
@@ -124,9 +142,9 @@
     }
     solved = true;
     pressed = false;
-    message = { text: `Hebat, kamu menulis angka ${value}!`, kind: 'ok' };
+    message = { text: `Hebat, kamu menulis ${what.text}!`, kind: 'ok' };
     play('correct');
-    say(`Hebat, kamu menulis angka ${value}!`);
+    say(`Hebat, kamu menulis ${what.spoken}!`);
     props.onSolved(attempts === 0);
   }
 
@@ -138,22 +156,28 @@
   }
 </script>
 
-<AskBar text="Ayo tulis angka {value}!" />
+<AskBar text="Ayo tulis {what.text}!" spoken="Ayo tulis {what.spoken}!" />
 <p class="hint">Mulai dari titik hijau, lalu ikuti jalurnya dengan jari.</p>
 
 {#key shake}
   <div class="board" class:bad={shake > 0 && !solved}>
     <svg
       bind:this={svg}
-      viewBox="0 0 {width} 140"
+      viewBox="{-pad} 0 {width + 2 * pad} {height}"
       class:wide={value.length > 1}
+      class:letters={!isNumber}
       onpointerdown={down}
       onpointermove={moveTo}
       onpointerup={lift}
       onpointercancel={lift}
       role="img"
-      aria-label="Jalur angka {value}"
+      aria-label="Jalur {what.text}"
     >
+      {#if !isNumber}
+        {#each ['top', 'mid', 'base', 'low'] as k}
+          <line x1={-pad} x2={width + pad} y1={LETTER_LINES[k]} y2={LETTER_LINES[k]} class="rule {k}" />
+        {/each}
+      {/if}
       {#each strokes as s, i}
         <g transform="translate({s.dx} 0)">
           <path d={s.path} class="road" class:faint={level.guide === 'faint'} bind:this={pathEls[i]} />
@@ -223,6 +247,21 @@
     width: 100%;
     height: auto;
     max-height: min(48vh, 340px);
+  }
+
+  .rule {
+    stroke: var(--sky);
+    stroke-width: 1.5;
+    opacity: 0.45;
+  }
+
+  .rule.mid {
+    stroke-dasharray: 6 6;
+  }
+
+  .rule.base {
+    stroke: var(--coral);
+    stroke-width: 2;
   }
 
   path {
