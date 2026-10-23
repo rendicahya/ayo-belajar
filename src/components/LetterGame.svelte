@@ -10,7 +10,7 @@
   let props = $props();
   const level = untrack(() => props.level);
   const q = genLetter(level);
-  const { type } = level;
+  const { type } = q;
   const name = letterName(q.answer);
 
   const word = q.dir === 'after' ? 'sesudah' : 'sebelum';

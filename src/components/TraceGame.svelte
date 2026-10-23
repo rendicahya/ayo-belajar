@@ -27,14 +27,17 @@
   const pad = isLetter ? Math.max(10, (150 - width) / 2) : 0;
   const verb = picture ? 'gambar' : 'tulis';
 
+  // pasangan huruf besar–kecil (Aa) dan suku kata (ti, ki) juga bisa muncul dari daftar tambahan level
+  const isPair = value.length === 2 && value[0] !== value[1] && value[0].toLowerCase() === value[1];
+  const unit = value.length === 2 && !level.words ? 'suku kata' : 'kata';
   const what = art
     ? { text: art.name, spoken: art.spoken ?? art.name }
     : isNumber
-    ? { text: `angka ${value}`, spoken: `angka ${value}` }
-    : level.pairs
+    ? { text: `${value.length > 1 ? 'bilangan' : 'angka'} ${value}`, spoken: `${value.length > 1 ? 'bilangan' : 'angka'} ${value}` }
+    : isPair
       ? { text: `huruf ${value[0]} dan ${value[1]}`, spoken: `huruf ${letterName(value[1])} besar dan ${letterName(value[1])} kecil` }
       : value.length > 1
-        ? { text: `kata ${value}`, spoken: `kata ${value}` }
+        ? { text: `${unit} ${value}`, spoken: `${unit} ${value.toLowerCase()}` }
         : { text: `huruf ${value}`, spoken: `huruf ${letterName(value)}` };
 
   const STEP = 5; // jarak antar titik periksa
@@ -174,7 +177,7 @@
 
 {#key shake}
   <div class="board" class:bad={shake > 0 && !solved}>
-    {#if art?.glyph}<span class="ref" aria-label="Contoh huruf"><span class="ar">{art.glyph}</span></span>{/if}
+    {#if art?.glyph && !level.noRef}<span class="ref" aria-label="Contoh huruf"><span class="ar">{art.glyph}</span></span>{/if}
     <svg
       bind:this={svg}
       viewBox="{-pad} 0 {width + 2 * pad} {height}"

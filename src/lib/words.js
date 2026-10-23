@@ -1,5 +1,6 @@
 import { rand, pick, shuffle } from './generate.js';
 import { ALPHABET, VOWELS } from './letters.js';
+import { noRepeat } from './session.js';
 
 // Kata bergambar beserta pemenggalan suku katanya.
 export const WORDS = [
@@ -26,86 +27,81 @@ export const WORDS = [
   ['🥕', 'wor-tel'],
   ['🪀', 'yo-yo'],
   ['🦓', 'ze-bra'],
+  ['🥥', 'ke-la-pa'], ['🍉', 'se-mang-ka'], ['🦒', 'je-ra-pah'], ['🐊', 'bu-a-ya'], ['🪆', 'bo-ne-ka'], ['🥑', 'al-pu-kat'],
 ].map(([emoji, cut]) => ({ emoji, syl: cut.split('-'), word: cut.replace(/-/g, '') }));
 
 const CONSONANTS = 'bcdfghjklmnprstwy'.split('');
 
-/** Hindari soal yang sama dua kali berturut-turut. */
-let last = null;
-function fresh(make) {
-  let q;
-  for (let tries = 0; tries < 20; tries++) {
-    q = make();
-    if (q.key !== last) break;
-  }
-  last = q.key;
-  return q;
-}
-
 // ---------- Mengenal huruf ----------
 
-export function genLetter({ type, pool }) {
-  return fresh(() => {
-    if (type === 'listen') {
-      const letters = pool === 'vowel' ? VOWELS : ALPHABET;
-      const answer = pick(letters);
-      return { key: answer, answer, choices: shuffle([answer, ...shuffle(letters.filter((l) => l !== answer)).slice(0, 3)]) };
-    }
-    if (type === 'case') {
-      // huruf besar → pilih huruf kecilnya; huruf yang mirip (b d p q) sengaja dicampur
-      const tricky = [['b', 'd', 'p', 'q'], ['m', 'n', 'u', 'w'], ['i', 'j', 'l', 't'], ['a', 'e', 'o', 'c']];
-      const answer = pick(ALPHABET);
-      const group = tricky.find((g) => g.includes(answer)) ?? [];
-      const others = shuffle([...new Set([...group, ...shuffle(ALPHABET)])].filter((l) => l !== answer)).slice(0, 3);
-      return { key: answer, answer, shown: answer.toUpperCase(), choices: shuffle([answer, ...others]) };
-    }
-    if (type === 'initial') {
-      const w = pick(WORDS);
-      const answer = w.word[0];
-      const others = shuffle(ALPHABET.filter((l) => l !== answer && WORDS.some((x) => x.word[0] === l))).slice(0, 3);
-      return { key: w.word, answer, word: w, choices: shuffle([answer, ...others]) };
-    }
-    // huruf sebelum / sesudah dalam abjad
-    const dir = Math.random() < 0.5 ? 'after' : 'before';
-    const i = dir === 'after' ? rand(0, 24) : rand(1, 25);
-    const n = ALPHABET[i];
-    const k = dir === 'after' ? i + 1 : i - 1;
-    const start = Math.min(Math.max(k - rand(0, 3), 0), 22);
-    return { key: n + dir, dir, n, answer: ALPHABET[k], choices: ALPHABET.slice(start, start + 4) };
-  });
+// `types` = beberapa jenis soal dalam satu level; setiap soal memilih salah satunya
+export const genLetter = noRepeat('huruf', ({ type: one, types, pool }) => {
+  const type = types ? pick(types) : one;
+  return { type, ...makeLetter(type, pool) };
+}, (q) => `${q.type}|${q.key}`);
+
+function makeLetter(type, pool) {
+  if (type === 'listen') {
+    const letters = pool === 'vowel' ? VOWELS : ALPHABET;
+    const answer = pick(letters);
+    return { key: answer, answer, choices: shuffle([answer, ...shuffle(letters.filter((l) => l !== answer)).slice(0, 3)]) };
+  }
+  if (type === 'case') {
+    // huruf besar → pilih huruf kecilnya; huruf yang mirip (b d p q) sengaja dicampur
+    const tricky = [['b', 'd', 'p', 'q'], ['m', 'n', 'u', 'w'], ['i', 'j', 'l', 't'], ['a', 'e', 'o', 'c']];
+    const letters = pool === 'vowel' ? VOWELS : ALPHABET;
+    const answer = pick(letters);
+    const group = pool === 'vowel' ? [] : (tricky.find((g) => g.includes(answer)) ?? []);
+    const others = shuffle([...new Set([...group, ...shuffle(letters)])].filter((l) => l !== answer)).slice(0, 3);
+    return { key: answer, answer, shown: answer.toUpperCase(), choices: shuffle([answer, ...others]) };
+  }
+  if (type === 'initial') {
+    const letters = pool === 'vowel' ? VOWELS : ALPHABET;
+    const w = pick(WORDS.filter((x) => letters.includes(x.word[0])));
+    const answer = w.word[0];
+    const others = shuffle(letters.filter((l) => l !== answer && WORDS.some((x) => x.word[0] === l))).slice(0, 3);
+    return { key: w.word, answer, word: w, choices: shuffle([answer, ...others]) };
+  }
+  // huruf sebelum / sesudah dalam abjad
+  const dir = Math.random() < 0.5 ? 'after' : 'before';
+  const i = dir === 'after' ? rand(0, 24) : rand(1, 25);
+  const n = ALPHABET[i];
+  const k = dir === 'after' ? i + 1 : i - 1;
+  const start = Math.min(Math.max(k - rand(0, 3), 0), 22);
+  return { key: n + dir, dir, n, answer: ALPHABET[k], choices: ALPHABET.slice(start, start + 4) };
 }
 
 // ---------- Suku kata & kata ----------
 
-export function genSyllable({ type, count }) {
-  return fresh(() => {
-    if (type === 'vowel') {
-      // ba bi bu be bo: konsonannya sama, vokalnya berbeda
-      const c = pick(CONSONANTS);
-      const answer = c + pick(VOWELS);
-      const others = shuffle(VOWELS.map((v) => c + v).filter((s) => s !== answer)).slice(0, 3);
-      return { key: answer, answer, choices: shuffle([answer, ...others]) };
-    }
-    if (type === 'mixed') {
-      const answer = pick(CONSONANTS) + pick(VOWELS);
-      const set = new Set([answer]);
-      // pengecoh: vokal sama konsonan beda, dan konsonan sama vokal beda
-      set.add(pick(CONSONANTS.filter((c) => c !== answer[0])) + answer[1]);
-      set.add(answer[0] + pick(VOWELS.filter((v) => v !== answer[1])));
-      while (set.size < 4) set.add(pick(CONSONANTS) + pick(VOWELS));
-      return { key: answer, answer, choices: shuffle([...set]) };
-    }
-    if (type === 'build') {
-      const w = pick(WORDS.filter((x) => x.syl.length === count));
-      const extra = pick(WORDS.flatMap((x) => x.syl).filter((s) => !w.syl.includes(s)));
-      return { key: w.word, word: w, tiles: shuffle([...w.syl, extra]) };
-    }
-    // baca kata, pilih gambarnya
-    const [w, ...others] = shuffle(WORDS);
-    const look = others.filter((x) => x.word[0] === w.word[0] || x.syl.length === w.syl.length);
-    const pickedOthers = [...new Set([...shuffle(look), ...others])].slice(0, 3);
-    return { key: w.word, word: w, choices: shuffle([w, ...pickedOthers]) };
-  });
+export const genSyllable = noRepeat('sukukata', (level) => makeSyllable(level), (q) => q.key);
+
+function makeSyllable({ type, count }) {
+  if (type === 'vowel') {
+    // ba bi bu be bo: konsonannya sama, vokalnya berbeda
+    const c = pick(CONSONANTS);
+    const answer = c + pick(VOWELS);
+    const others = shuffle(VOWELS.map((v) => c + v).filter((s) => s !== answer)).slice(0, 3);
+    return { key: answer, answer, choices: shuffle([answer, ...others]) };
+  }
+  if (type === 'mixed') {
+    const answer = pick(CONSONANTS) + pick(VOWELS);
+    const set = new Set([answer]);
+    // pengecoh: vokal sama konsonan beda, dan konsonan sama vokal beda
+    set.add(pick(CONSONANTS.filter((c) => c !== answer[0])) + answer[1]);
+    set.add(answer[0] + pick(VOWELS.filter((v) => v !== answer[1])));
+    while (set.size < 4) set.add(pick(CONSONANTS) + pick(VOWELS));
+    return { key: answer, answer, choices: shuffle([...set]) };
+  }
+  if (type === 'build') {
+    const w = pick(WORDS.filter((x) => x.syl.length === count));
+    const extra = pick(WORDS.flatMap((x) => x.syl).filter((s) => !w.syl.includes(s)));
+    return { key: w.word, word: w, tiles: shuffle([...w.syl, extra]) };
+  }
+  // baca kata, pilih gambarnya
+  const [w, ...others] = shuffle(WORDS);
+  const look = others.filter((x) => x.word[0] === w.word[0] || x.syl.length === w.syl.length);
+  const pickedOthers = [...new Set([...shuffle(look), ...others])].slice(0, 3);
+  return { key: w.word, word: w, choices: shuffle([w, ...pickedOthers]) };
 }
 
 // ---------- Menyusun kalimat ----------
@@ -120,7 +116,8 @@ const SENTENCES = [
   'Budi makan roti keju', 'Ibu menyapu lantai rumah', 'Ayah minum teh panas',
   'Ibu membeli sayur di pasar', 'Kami pergi ke kebun binatang', 'Adik bermain bola di halaman',
   'Ayah menanam pohon di kebun', 'Nenek memasak sayur di dapur', 'Kakak membaca buku di kamar',
-  'Saya pergi ke sekolah naik sepeda',
+  'Saya pergi ke sekolah naik sepeda', 'Kakak menyiram bunga di taman', 'Adik makan nasi dengan sendok',
+  'Ibu menjemur baju di halaman', 'Kami bermain layang-layang di lapangan', 'Ayah membaca koran di teras',
 ].map((s) => s.split(' '));
 
 // kalimat rumpang: [kalimat dengan ___, jawaban, pengecoh, pengecoh]
@@ -149,24 +146,24 @@ const BLANKS = [
 
 const sentence = (words) => `${words.join(' ')}.`;
 
-export function genSentence({ type, words: size }) {
-  return fresh(() => {
-    if (type === 'blank') {
-      const [text, answer, ...others] = pick(BLANKS);
-      return { key: text, text, answer, choices: shuffle([answer, ...others]) };
-    }
-    if (type === 'build') {
-      const words = pick(SENTENCES.filter((s) => s.length === size || (size === 5 && s.length > 5)));
-      return { key: words.join(' '), words, tiles: shuffle(words.map((w, i) => ({ id: i, w }))) };
-    }
-    // pilih kalimat yang penulisannya benar (huruf kapital & titik)
-    const words = pick(SENTENCES);
-    const answer = sentence(words);
-    const lower = [words[0].toLowerCase(), ...words.slice(1)];
-    const swapped = [...words];
-    const j = rand(1, words.length - 2);
-    [swapped[j], swapped[j + 1]] = [swapped[j + 1], swapped[j]];
-    const wrong = shuffle([sentence(lower), words.join(' '), `${lower.join(' ')}`, sentence(swapped)]).slice(0, 3);
-    return { key: answer, answer, choices: shuffle([answer, ...wrong]) };
-  });
+export const genSentence = noRepeat('kalimat', (level) => makeSentence(level), (q) => q.key);
+
+function makeSentence({ type, words: size }) {
+  if (type === 'blank') {
+    const [text, answer, ...others] = pick(BLANKS);
+    return { key: text, text, answer, choices: shuffle([answer, ...others]) };
+  }
+  if (type === 'build') {
+    const words = pick(SENTENCES.filter((s) => s.length === size || (size === 5 && s.length > 5)));
+    return { key: words.join(' '), words, tiles: shuffle(words.map((w, i) => ({ id: i, w }))) };
+  }
+  // pilih kalimat yang penulisannya benar (huruf kapital & titik)
+  const words = pick(SENTENCES);
+  const answer = sentence(words);
+  const lower = [words[0].toLowerCase(), ...words.slice(1)];
+  const swapped = [...words];
+  const j = rand(1, words.length - 2);
+  [swapped[j], swapped[j + 1]] = [swapped[j + 1], swapped[j]];
+  const wrong = shuffle([sentence(lower), words.join(' '), `${lower.join(' ')}`, sentence(swapped)]).slice(0, 3);
+  return { key: answer, answer, choices: shuffle([answer, ...wrong]) };
 }

@@ -75,7 +75,10 @@ export const SUBJECTS = [
 /** Kartu dianggap "siap lanjut" setelah Level 3 mendapat bintang. */
 export const NEXT_AFTER_LEVEL = 3;
 
-const allPictures = ['bola', 'matahari', 'balon', 'apel', 'rumah', 'ikan', 'pohon', 'eskrim', 'kucing', 'bunga', 'mobil', 'kupu'];
+// gambar untuk "Ayo Menggambar", dari goresan paling sedikit
+const easyPictures = ['bola', 'matahari', 'balon', 'apel', 'jeruk', 'awan', 'bulan', 'donat', 'daun', 'layangan', 'lolipop', 'ceri'];
+const mediumPictures = ['rumah', 'ikan', 'pohon', 'eskrim', 'payung', 'jamur', 'topi', 'gelas', 'wortel', 'siput', 'kue', 'pensil'];
+const hardPictures = ['kucing', 'bunga', 'mobil', 'kupu', 'ulat', 'jamweker', 'tulip', 'bus', 'kelinci', 'beruang', 'burung', 'kereta'];
 
 export const MODES = {
   hijaiyah: {
@@ -86,8 +89,8 @@ export const MODES = {
     color: 'var(--ok)',
     tagline: 'Alif, ba, ta sampai ya',
     levels: [
-      { emoji: '🐣', name: 'Mudah', type: 'listen', from: 0, to: 7, n: 3, desc: 'Alif sampai kho (7 huruf)' },
-      { emoji: '🐥', name: 'Lumayan', type: 'listen', from: 0, to: 14, n: 4, desc: 'Alif sampai shod (14 huruf)' },
+      { emoji: '🐣', name: 'Mudah', type: 'listen', from: 0, to: 12, n: 3, desc: 'Alif sampai sin (12 huruf)' },
+      { emoji: '🐥', name: 'Lumayan', type: 'listen', from: 0, to: 20, n: 4, desc: 'Alif sampai fa (20 huruf)' },
       { emoji: '🦊', name: 'Sedang', type: 'listen', from: 0, to: 28, n: 4, desc: 'Semua 28 huruf' },
       { emoji: '🦁', name: 'Sulit', type: 'name', from: 0, to: 28, n: 4, desc: 'Lihat huruf, pilih namanya' },
       { emoji: '🐉', name: 'Jago', type: 'similar', desc: 'Huruf mirip, beda titik: ب ت ث' },
@@ -101,11 +104,11 @@ export const MODES = {
     color: 'var(--teal)',
     tagline: 'Telusuri huruf dari kanan',
     levels: [
-      { emoji: '🐣', name: 'Mudah', hijaiyah: true, art: hijaiyahIds(0, 4), guide: 'dots', desc: 'Alif, ba, ta, tsa' },
-      { emoji: '🐥', name: 'Lumayan', hijaiyah: true, art: hijaiyahIds(4, 11), guide: 'dots', desc: 'Jim sampai zai' },
-      { emoji: '🦊', name: 'Sedang', hijaiyah: true, art: hijaiyahIds(11, 19), guide: 'dots', desc: 'Sin sampai ghoin' },
-      { emoji: '🦁', name: 'Sulit', hijaiyah: true, art: hijaiyahIds(19, 28), guide: 'dots', desc: 'Fa sampai ya' },
-      { emoji: '🐉', name: 'Jago', hijaiyah: true, art: hijaiyahIds(0, 28), guide: 'faint', desc: 'Semua huruf, tanpa titik bantu' },
+      { emoji: '🐣', name: 'Mudah', hijaiyah: true, art: hijaiyahIds(0, 12), guide: 'dots', desc: 'Alif sampai sin' },
+      { emoji: '🐥', name: 'Lumayan', hijaiyah: true, art: hijaiyahIds(12, 28), guide: 'dots', desc: 'Syin sampai ya' },
+      { emoji: '🦊', name: 'Sedang', hijaiyah: true, art: hijaiyahIds(0, 28), guide: 'dots', desc: 'Semua huruf, dengan titik bantu' },
+      { emoji: '🦁', name: 'Sulit', hijaiyah: true, art: hijaiyahIds(0, 28), guide: 'faint', desc: 'Semua huruf, tanpa titik bantu' },
+      { emoji: '🐉', name: 'Jago', hijaiyah: true, art: hijaiyahIds(0, 28), guide: 'faint', noRef: true, desc: 'Tanpa titik bantu dan tanpa contoh' },
     ],
   },
   harakat: {
@@ -131,10 +134,10 @@ export const MODES = {
     color: 'var(--indigo)',
     tagline: 'Susun doa dan ayat sesuai urutan',
     levels: [
-      { emoji: '🐣', name: 'Mudah', type: 'build', sets: ['short'], desc: 'Basmalah, hamdalah, doa tidur' },
-      { emoji: '🐥', name: 'Lumayan', type: 'build', sets: ['daily'], desc: 'Doa makan, bangun tidur, orang tua' },
-      { emoji: '🦊', name: 'Sedang', type: 'build', sets: ['surah3'], desc: 'Al-Kautsar & Al-Ikhlas' },
-      { emoji: '🦁', name: 'Sulit', type: 'build', sets: ['surah5', 'fatihah'], desc: 'Al-Falaq, An-Nas, Al-Fatihah' },
+      { emoji: '🐣', name: 'Mudah', types: ['build', 'blank'], sets: ['short'], desc: 'Basmalah, hamdalah, doa tidur' },
+      { emoji: '🐥', name: 'Lumayan', types: ['build', 'blank'], sets: ['daily'], desc: 'Doa makan, bangun tidur, orang tua' },
+      { emoji: '🦊', name: 'Sedang', types: ['build', 'blank', 'next'], sets: ['surah3'], desc: 'Al-Kautsar & Al-Ikhlas' },
+      { emoji: '🦁', name: 'Sulit', types: ['build', 'blank'], sets: ['surah5', 'fatihah'], desc: 'Al-Falaq, An-Nas, Al-Fatihah' },
       { emoji: '🐉', name: 'Jago', type: 'next', sets: ['surah3', 'surah5', 'fatihah'], desc: 'Tebak ayat sesudahnya' },
     ],
   },
@@ -146,11 +149,17 @@ export const MODES = {
     color: 'var(--orange)',
     tagline: 'Telusuri garis dan bentuk',
     levels: [
-      { emoji: '🐣', name: 'Mudah', art: ['tegak', 'datar', 'pagar'], guide: 'dots', desc: 'Garis tegak & mendatar' },
-      { emoji: '🐥', name: 'Lumayan', art: ['miring', 'gunung', 'petir'], guide: 'dots', desc: 'Garis miring & zigzag' },
-      { emoji: '🦊', name: 'Sedang', art: ['gelombang', 'bukit', 'pelangi1'], guide: 'dots', desc: 'Garis lengkung & gelombang' },
-      { emoji: '🦁', name: 'Sulit', art: ['lingkaran', 'telur', 'spiral'], guide: 'dots', desc: 'Lingkaran & spiral' },
-      { emoji: '🐉', name: 'Jago', art: ['segitiga', 'persegi', 'ketupat', 'bintang', 'hati'], guide: 'dots', desc: 'Segitiga, persegi, bintang, hati' },
+      { emoji: '🐣', name: 'Mudah', art: ['tegak', 'datar', 'pagar', 'tangga', 'jendela', 'rel', 'tambah', 'sisir', 'meja', 'gawang', 'kursi', 'bendera'], guide: 'dots', desc: 'Garis tegak & mendatar' },
+      { emoji: '🐥', name: 'Lumayan', art: ['miring', 'gunung', 'petir', 'tenda', 'atap', 'gergaji', 'silang', 'panah', 'cemara', 'hujan', 'mahkota', 'pita'], guide: 'dots', desc: 'Garis miring & zigzag' },
+      { emoji: '🦊', name: 'Sedang', art: ['gelombang', 'bukit', 'pelangi1', 'senyum', 'kail', 'ombak', 'ular', 'sabit', 'jembatan', 'busur', 'rumput', 'kerang'], guide: 'dots', desc: 'Garis lengkung & gelombang' },
+      { emoji: '🦁', name: 'Sulit', art: ['lingkaran', 'telur', 'spiral', 'kacamata', 'roda', 'jam', 'gelembung', 'kancing', 'rantai', 'mata', 'saljuboneka', 'cincin'], guide: 'dots', desc: 'Lingkaran & spiral' },
+      {
+        emoji: '🐉',
+        name: 'Jago',
+        art: ['segitiga', 'persegi', 'ketupat', 'bintang', 'hati', 'persegipanjang', 'segilima', 'segienam', 'trapesium', 'jajargenjang', 'oval', 'layangbangun'],
+        guide: 'dots',
+        desc: 'Segitiga, persegi, bintang, hati …',
+      },
     ],
   },
   mewarnai: {
@@ -191,11 +200,17 @@ export const MODES = {
     color: 'var(--sky)',
     tagline: 'Gambar benda langkah demi langkah',
     levels: [
-      { emoji: '🐣', name: 'Mudah', art: ['bola', 'matahari', 'balon', 'apel'], guide: 'dots', desc: 'Bola, matahari, balon, apel' },
-      { emoji: '🐥', name: 'Lumayan', art: ['rumah', 'ikan', 'pohon', 'eskrim'], guide: 'dots', desc: 'Rumah, ikan, pohon, es krim' },
-      { emoji: '🦊', name: 'Sedang', art: ['kucing', 'bunga', 'mobil', 'kupu'], guide: 'dots', desc: 'Kucing, bunga, mobil, kupu-kupu' },
-      { emoji: '🦁', name: 'Sulit', art: allPictures, guide: 'faint', desc: 'Semua gambar, tanpa titik' },
-      { emoji: '🐉', name: 'Jago', art: ['roket', 'robot', 'perahu', 'pelangi'], guide: 'faint', desc: 'Roket, robot, perahu, pelangi' },
+      { emoji: '🐣', name: 'Mudah', art: easyPictures, guide: 'dots', desc: 'Bola, matahari, balon, apel …' },
+      { emoji: '🐥', name: 'Lumayan', art: mediumPictures, guide: 'dots', desc: 'Rumah, ikan, pohon, es krim …' },
+      { emoji: '🦊', name: 'Sedang', art: hardPictures, guide: 'dots', desc: 'Kucing, bunga, mobil, kupu-kupu …' },
+      { emoji: '🦁', name: 'Sulit', art: [...easyPictures, ...mediumPictures, ...hardPictures], guide: 'faint', desc: 'Semua gambar, tanpa titik' },
+      {
+        emoji: '🐉',
+        name: 'Jago',
+        art: ['roket', 'robot', 'perahu', 'pelangi', 'pesawat', 'kastil', 'kura', 'kemah', 'gitar', 'truk', 'bungamatahari', 'paus'],
+        guide: 'faint',
+        desc: 'Roket, robot, pesawat, istana …',
+      },
     ],
   },
   cermin: {
@@ -222,9 +237,9 @@ export const MODES = {
     color: 'var(--grape)',
     tagline: 'Telusuri huruf a sampai z',
     levels: [
-      { emoji: '🐣', name: 'Mudah', letters: 'litvwxzk', guide: 'dots', desc: 'Garis lurus: l, i, t, v, x …' },
-      { emoji: '🐥', name: 'Lumayan', letters: 'coadegqs', guide: 'dots', desc: 'Lengkung: c, o, a, d, e …' },
-      { emoji: '🦊', name: 'Sedang', letters: 'nmhrubpjfy', guide: 'dots', desc: 'Naik-turun: n, m, h, r, u …' },
+      { emoji: '🐣', name: 'Mudah', letters: 'litvwxzky', extra: ['ti', 'ki', 'li'], guide: 'dots', desc: 'Garis lurus: l, i, t, v, x … lalu ti, ki' },
+      { emoji: '🐥', name: 'Lumayan', letters: 'coadegqs', extra: ['ada', 'gas', 'soda', 'goa'], guide: 'dots', desc: 'Lengkung: c, o, a, d, e … lalu ada, gas' },
+      { emoji: '🦊', name: 'Sedang', letters: 'nmhrubpjfy', extra: ['ibu', 'bumi', 'rumah'], guide: 'dots', desc: 'Naik-turun: n, m, h, r, u … lalu ibu' },
       { emoji: '🦁', name: 'Sulit', letters: 'abcdefghijklmnopqrstuvwxyz', guide: 'faint', desc: 'Semua huruf, tanpa titik' },
       { emoji: '🐉', name: 'Jago', words: true, guide: 'faint', desc: 'Kata pendek: ibu, bola, buku …' },
     ],
@@ -237,9 +252,9 @@ export const MODES = {
     color: 'var(--pink)',
     tagline: 'Telusuri huruf A sampai Z',
     levels: [
-      { emoji: '🐣', name: 'Mudah', letters: 'LTIHEF', guide: 'dots', desc: 'Garis lurus: L, T, I, H, E, F' },
-      { emoji: '🐥', name: 'Lumayan', letters: 'AVWXYZKMN', guide: 'dots', desc: 'Garis miring: A, V, W, X …' },
-      { emoji: '🦊', name: 'Sedang', letters: 'OCGSUJDPBRQ', guide: 'dots', desc: 'Lengkung: O, C, G, S, U …' },
+      { emoji: '🐣', name: 'Mudah', letters: 'LTIHEF', extra: ['Ll', 'Ii', 'Tt', 'Hh', 'Ee', 'Ff', 'TEH'], guide: 'dots', desc: 'Garis lurus: L, T, I, H, E, F' },
+      { emoji: '🐥', name: 'Lumayan', letters: 'AVWXYZKMN', extra: ['AYAM', 'MAMA', 'NAMA'], guide: 'dots', desc: 'Garis miring: A, V, W, X … lalu AYAM' },
+      { emoji: '🦊', name: 'Sedang', letters: 'OCGSUJDPBRQ', extra: ['BOLA', 'SUSU'], guide: 'dots', desc: 'Lengkung: O, C, G, S, U … lalu BOLA' },
       { emoji: '🦁', name: 'Sulit', letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', guide: 'faint', desc: 'Semua huruf, tanpa titik' },
       { emoji: '🐉', name: 'Jago', pairs: true, guide: 'faint', desc: 'Pasangan huruf: Aa, Bb, Cc …' },
     ],
@@ -252,7 +267,7 @@ export const MODES = {
     color: 'var(--sky)',
     tagline: 'Dengar, lalu cari hurufnya',
     levels: [
-      { emoji: '🐣', name: 'Mudah', type: 'listen', pool: 'vowel', desc: 'Huruf vokal: a, i, u, e, o' },
+      { emoji: '🐣', name: 'Mudah', types: ['listen', 'case', 'initial'], pool: 'vowel', desc: 'Huruf vokal: a, i, u, e, o' },
       { emoji: '🐥', name: 'Lumayan', type: 'listen', pool: 'all', desc: 'Semua huruf a sampai z' },
       { emoji: '🦊', name: 'Sedang', type: 'case', desc: 'Pasangkan huruf besar & kecil' },
       { emoji: '🦁', name: 'Sulit', type: 'initial', desc: 'Huruf awal gambar: 🐱 → k' },
@@ -313,7 +328,7 @@ export const MODES = {
     color: 'var(--sky)',
     tagline: 'Dengar, lalu cari angkanya',
     levels: [
-      { emoji: '🐣', name: 'Mudah', type: 'listen', min: 1, max: 5, desc: 'Cari angka 1 sampai 5' },
+      { emoji: '🐣', name: 'Mudah', types: ['listen', 'toGroup'], min: 1, max: 5, desc: 'Angka 1 sampai 5: dengar & cocokkan' },
       { emoji: '🐥', name: 'Lumayan', type: 'listen', min: 0, max: 10, desc: 'Cari angka 0 sampai 10' },
       { emoji: '🦊', name: 'Sedang', type: 'toGroup', max: 10, desc: 'Cocokkan angka dengan bendanya' },
       { emoji: '🦁', name: 'Sulit', type: 'listen', min: 11, max: 20, desc: 'Cari angka 11 sampai 20' },
@@ -328,9 +343,9 @@ export const MODES = {
     color: 'var(--grape)',
     tagline: 'Telusuri angka dengan jari',
     levels: [
-      { emoji: '🐣', name: 'Mudah', digits: [1, 4, 7], guide: 'dots', desc: 'Garis lurus: 1, 4, 7' },
-      { emoji: '🐥', name: 'Lumayan', digits: [0, 6, 9], guide: 'dots', desc: 'Lengkung: 0, 6, 9' },
-      { emoji: '🦊', name: 'Sedang', digits: [2, 3, 5, 8], guide: 'dots', desc: 'Berbelok: 2, 3, 5, 8' },
+      { emoji: '🐣', name: 'Mudah', digits: [1, 4, 7], combine: [1, 4, 7], guide: 'dots', desc: 'Garis lurus: 1, 4, 7, lalu 14, 71 …' },
+      { emoji: '🐥', name: 'Lumayan', digits: [0, 6, 9], combine: [0, 1, 4, 6, 7, 9], guide: 'dots', desc: 'Lengkung: 0, 6, 9, lalu 60, 96 …' },
+      { emoji: '🦊', name: 'Sedang', digits: [2, 3, 5, 8], combine: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], guide: 'dots', desc: 'Berbelok: 2, 3, 5, 8, lalu 25, 83 …' },
       { emoji: '🦁', name: 'Sulit', digits: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], guide: 'faint', desc: 'Semua angka, tanpa titik' },
       { emoji: '🐉', name: 'Jago', twoDigit: true, guide: 'faint', desc: 'Bilangan 10 sampai 20' },
     ],
@@ -466,7 +481,7 @@ export const MODES = {
     color: 'var(--coral)',
     tagline: 'Setengah, sepertiga, seperempat',
     levels: [
-      { emoji: '🐣', name: 'Mudah', type: 'identify', dens: [2, 3, 4], desc: 'Kenali ½, ⅓, ¼, ¾ …' },
+      { emoji: '🐣', name: 'Mudah', type: 'identify', dens: [2, 3, 4, 6], desc: 'Kenali ½, ⅓, ¼, ¾, ⅙ …' },
       { emoji: '🐥', name: 'Lumayan', type: 'color', dens: [2, 3, 4, 6, 8], desc: 'Warnai pizza sesuai pecahan' },
       { emoji: '🦊', name: 'Sedang', type: 'identify', dens: [5, 6, 8], desc: 'Kenali pecahan sampai perdelapan' },
       { emoji: '🦁', name: 'Sulit', type: 'compareSame', desc: 'Bandingkan pecahan yang mirip' },

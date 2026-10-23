@@ -10,7 +10,7 @@
   let props = $props();
   const level = untrack(() => props.level);
   const q = genNumeral(level);
-  const { type } = level;
+  const { type } = q;
 
   const word = q.dir === 'after' ? 'sesudah' : 'sebelum';
   const ask =

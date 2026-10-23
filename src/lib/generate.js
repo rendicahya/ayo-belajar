@@ -1,4 +1,5 @@
 import { ALPHABET, TRACE_WORDS } from './letters.js';
+import { noRepeat } from './session.js';
 import { COLORS as PAINTS, COLOR_PICTURES, DOT_PICTURES, GRID_COPY, GRID_HALF } from './drawings.js';
 
 export const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -26,7 +27,7 @@ export function shuffle(arr) {
 // Soal yang butuh simpan/pinjam lebih sering muncul, tapi sesekali tanpa juga.
 const acceptPlain = (tries) => Math.random() < 0.3 || tries > 20;
 
-export function genAddition({ count, digits }) {
+function makeAddition({ count, digits }) {
   for (let tries = 0; ; tries++) {
     const operands = Array.from({ length: count }, () => randWithDigits(digits));
     const rows = operands.map(digitsOf);
@@ -71,14 +72,14 @@ function trySubtraction(count, digits) {
   return { operands, answer: operands[0] - sum(operands.slice(1)), borrowed };
 }
 
-export function genSubtraction({ count, digits }) {
+function makeSubtraction({ count, digits }) {
   for (let tries = 0; ; tries++) {
     const p = trySubtraction(count, digits);
     if (p && (p.borrowed || acceptPlain(tries))) return { operands: p.operands, answer: p.answer };
   }
 }
 
-export function genMultiplication({ digits, by }) {
+function makeMultiplication({ digits, by }) {
   const a = digits === 1 ? rand(2, 9) : randWithDigits(digits);
   // pengali tanpa angka 0 supaya setiap baris perkalian berarti
   const b = by === 1 ? rand(2, 9) : fromDigits(Array.from({ length: by }, () => rand(1, 9)));
@@ -95,7 +96,7 @@ const divisionHasRemainder = (dividend, divisor) => {
   return false;
 };
 
-export function genDivision({ digits, clean, minDiv = 2, maxDiv = 9 }) {
+function makeDivision({ digits, clean, minDiv = 2, maxDiv = 9 }) {
   if (clean) {
     // setiap digit habis dibagi, mis. 84 : 4
     const divisor = rand(2, 4);
@@ -114,7 +115,7 @@ export function genDivision({ digits, clean, minDiv = 2, maxDiv = 9 }) {
 }
 
 /** Pembagian bersusun panjang: hasil bagi minimal 2 digit supaya ada beberapa langkah. */
-export function genLongDivision({ digits, divMin, divMax, rem }) {
+function makeLongDivision({ digits, divMin, divMax, rem }) {
   for (;;) {
     const divisor = rand(divMin, divMax);
     let dividend;
@@ -129,7 +130,7 @@ export function genLongDivision({ digits, divMin, divMax, rem }) {
   }
 }
 
-export function genCompare({ digits, close }) {
+function makeCompare({ digits, close }) {
   const a = randWithDigits(digits, digits === 1);
   if (Math.random() < 0.2) return { a, b: a };
   let b;
@@ -175,7 +176,7 @@ function splitSum(v, maxPart) {
   return plus(a, v - a);
 }
 
-export function genExprCompare({ expr: type }) {
+function makeExprCompare({ expr: type }) {
   let left, right;
   switch (type) {
     case 'sum1':
@@ -220,7 +221,7 @@ export function genExprCompare({ expr: type }) {
   return Math.random() < 0.5 ? { left, right } : { left: right, right: left };
 }
 
-export function genSort({ count, digits, order, close }) {
+function makeSort({ count, digits, order, close }) {
   const set = new Set();
   const base = close ? rand(10 ** (digits - 1), 10 ** digits - 100) : 0;
   while (set.size < count) set.add(close ? base + rand(0, 99) : randWithDigits(digits, digits === 1));
@@ -234,7 +235,7 @@ export function genSort({ count, digits, order, close }) {
 
 export const PLACES = ['satuan', 'puluhan', 'ratusan', 'ribuan', 'puluh ribuan', 'ratus ribuan'];
 
-export function genPlaceValue({ type, digits }) {
+function makePlaceValue({ type, digits }) {
   if (type !== 'value') return { number: randWithDigits(digits) };
   // digit berbeda semua supaya pertanyaan "angka X" tidak ambigu
   const ds = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9]).slice(0, digits);
@@ -295,7 +296,7 @@ const STORIES = {
   ],
 };
 
-export function genStory({ ops, digits }) {
+function makeStory({ ops, digits }) {
   const op = pick(ops);
   const [A, B] = shuffle(NAMES);
   const [item, emoji] = pick(ITEMS);
@@ -346,7 +347,7 @@ const shopItems = (n, minStep, maxStep) =>
 
 const noteAbove = (total) => [5000, 10000, 20000, 50000, 100000].find((v) => v > total);
 
-export function genMoney({ type }) {
+function makeMoney({ type }) {
   switch (type) {
     case 'count': {
       const pieces = Array.from({ length: rand(2, 4) }, () => pick([500, 1000, 2000, 5000])).sort((a, b) => b - a);
@@ -376,7 +377,7 @@ export function genMoney({ type }) {
 
 // ---------- Garis bilangan ----------
 
-export function genJump({ type, max, tick = 1 }) {
+function makeJump({ type, max, tick = 1 }) {
   let start, hop, count, dir, text;
   const t = type === 'mix' ? pick(['add', 'sub']) : type;
   if (t === 'mul') {
@@ -416,7 +417,7 @@ const loadFacts = () => {
 let lastFact = '';
 
 /** Fakta perkalian; yang pernah salah punya bobot lebih besar sehingga lebih sering muncul. */
-export function genFact({ tables }) {
+function makeFact({ tables }) {
   const misses = loadFacts();
   const pool = [];
   for (const t of tables)
@@ -444,7 +445,7 @@ export function recordFact(id, firstTry) {
 
 // ---------- Pola bilangan ----------
 
-export function genPattern({ kind, steps, blanks = 1, dir = 1 }) {
+function makePattern({ kind, steps, blanks = 1, dir = 1 }) {
   const len = 6;
   let seq, rule;
   if (kind === 'grow') {
@@ -491,7 +492,7 @@ const nearChoices = (answer, deltas, min = 0) => {
   return [...set].sort((a, b) => a - b);
 };
 
-export function genMeasure({ type }) {
+function makeMeasure({ type }) {
   if (type === 'ruler' || type === 'ruler-offset') {
     const [name, color] = pick(OBJECTS);
     if (type === 'ruler') {
@@ -555,17 +556,29 @@ export const SHAPES = {
   jajarGenjang: { name: 'Jajar genjang', pts: [[28, 24], [96, 24], [72, 78], [4, 78]], sides: 4, corners: 4, clue: 'Sisi-sisiku yang berhadapan sama panjang, tapi badanku miring.' },
   segiLima: { name: 'Segi lima', pts: poly(5), sides: 5, corners: 5, clue: 'Aku punya 5 sisi dan 5 titik sudut.' },
   segiEnam: { name: 'Segi enam', pts: poly(6, 45, 0), sides: 6, corners: 6, clue: 'Aku punya 6 sisi, seperti sarang lebah.' },
+  segiDelapan: { name: 'Segi delapan', pts: poly(8, 45, -67.5), sides: 8, corners: 8, clue: 'Aku punya 8 sisi, seperti rambu lalu lintas "berhenti".' },
+  layangLayang: { name: 'Layang-layang', pts: [[50, 4], [80, 36], [50, 98], [20, 36]], sides: 4, corners: 4, clue: 'Dua sisi atasku pendek dan dua sisi bawahku panjang, seperti layangan.' },
+  segitigaSiku: { name: 'Segitiga siku-siku', pts: [[12, 8], [12, 90], [92, 90]], sides: 3, corners: 3, clue: 'Aku segitiga yang punya satu sudut siku-siku, seperti penggaris segitiga.' },
 };
+
+// bangun yang cirinya mirip tidak dijadikan pilihan bersamaan di soal "tebak dari ciri"
+const LOOKALIKE = [
+  ['persegi', 'belahKetupat'],
+  ['segitiga', 'segitigaSiku'],
+  ['belahKetupat', 'layangLayang'],
+];
+const lookalike = (a, b) => LOOKALIKE.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
 
 const BASIC = ['lingkaran', 'segitiga', 'persegi', 'persegiPanjang'];
 const SHAPE_COLORS = ['var(--coral)', 'var(--sky)', 'var(--lime)', 'var(--grape)', 'var(--pink)', 'var(--orange)', 'var(--teal)'];
 const dressShape = (id) => ({ id, color: pick(SHAPE_COLORS), rot: id === 'lingkaran' ? 0 : rand(-12, 12), scale: rand(80, 100) / 100 });
 
-export function genShape({ type }) {
+function makeShape({ type }) {
   const all = Object.keys(SHAPES);
   if (type === 'name') {
-    const id = pick(BASIC);
-    return { shape: dressShape(id), answer: id, choices: shuffle(BASIC) };
+    const id = pick(all);
+    const others = shuffle(all.filter((s) => s !== id && !lookalike(s, id)));
+    return { shape: dressShape(id), answer: id, choices: shuffle([id, ...others.slice(0, 3)]) };
   }
   if (type === 'find') {
     const target = pick(BASIC);
@@ -576,10 +589,11 @@ export function genShape({ type }) {
   if (type === 'sides' || type === 'corners') {
     const id = pick(all.filter((s) => type === 'corners' || s !== 'lingkaran'));
     const answer = SHAPES[id][type];
-    return { shape: dressShape(id), answer, choices: answer === 0 || (type === 'corners' && Math.random() < 0.5) ? [0, 3, 4, 5, 6] : [3, 4, 5, 6] };
+    const base = answer === 8 ? [4, 5, 6, 8] : [3, 4, 5, 6];
+    return { shape: dressShape(id), answer, choices: answer === 0 || (type === 'corners' && Math.random() < 0.5) ? [0, ...base] : base };
   }
   const id = pick(all);
-  const pool = all.filter((s) => s !== id && !(id === 'persegi' && s === 'belahKetupat') && !(id === 'belahKetupat' && s === 'persegi'));
+  const pool = all.filter((s) => s !== id && !lookalike(s, id));
   return { answer: id, clue: SHAPES[id].clue, choices: shuffle([id, ...shuffle(pool).slice(0, 3)]).map(dressShape) };
 }
 
@@ -588,7 +602,7 @@ export function genShape({ type }) {
 const fr = (k, d) => ({ k, d });
 const sameValue = (a, b) => a.k * b.d === b.k * a.d;
 
-export function genFraction({ type, dens }) {
+function makeFraction({ type, dens }) {
   if (type === 'identify' || type === 'color') {
     const d = pick(dens);
     const target = fr(rand(1, d - 1), d);
@@ -672,7 +686,7 @@ const countChoices = (answer, max) => runChoices(answer, 1, max);
 const placeAnimal = (a) => ({ ...a, rot: rand(-12, 12), dy: rand(-6, 6) });
 const herd = (a, n) => Array.from({ length: n }, () => placeAnimal(a));
 
-export function genCount({ type, max }) {
+function makeCount({ type, max }) {
   if (type === 'count') {
     const animal = pick(ANIMALS);
     const answer = rand(1, max);
@@ -702,34 +716,45 @@ export function genCount({ type, max }) {
 
 // ---------- Mengenal angka ----------
 
-export function genNumeral({ type, min = 1, max }) {
+// `types` = beberapa jenis soal dalam satu level; setiap soal memilih salah satunya
+function makeNumeral({ type: one, types, min = 1, max }) {
+  const type = types ? pick(types) : one;
   if (type === 'listen') {
     const answer = rand(min, max);
     const others = shuffle(Array.from({ length: max - min + 1 }, (_, i) => min + i).filter((v) => v !== answer));
-    return { answer, choices: shuffle([answer, ...others.slice(0, 3)]) };
+    return { type, answer, choices: shuffle([answer, ...others.slice(0, 3)]) };
   }
   if (type === 'toGroup') {
-    const answer = rand(1, max);
+    const answer = rand(Math.max(1, min), max);
     const near = shuffle(Array.from({ length: max }, (_, i) => i + 1).filter((v) => v !== answer && Math.abs(v - answer) <= 3));
     const animals = shuffle(ANIMALS);
     const groups = shuffle([answer, ...near.slice(0, 2)]).map((n, i) => ({ n, animal: animals[i], field: herd(animals[i], n) }));
-    return { answer, groups };
+    return { type, answer, groups };
   }
   // angka sebelum / sesudah
   const dir = Math.random() < 0.5 ? 'after' : 'before';
   const n = dir === 'after' ? rand(min, max - 1) : rand(min + 1, max);
   const answer = dir === 'after' ? n + 1 : n - 1;
-  return { dir, n, answer, choices: runChoices(answer, 0, max) };
+  return { type, dir, n, answer, choices: runChoices(answer, 0, max) };
 }
 
 // ---------- Menulis angka ----------
 
 let lastTrace = null;
-export function genTrace({ digits, twoDigit, letters, pairs, words, art }) {
+/** Angka satu digit ditambah bilangan dua digit yang memakai angka-angka itu (mis. 1, 4, 7, 14, 71 …). */
+function digitPool(digits, combine) {
+  const pool = digits.map(String);
+  for (const a of combine)
+    for (const b of combine) if (a !== 0 && (digits.includes(a) || digits.includes(b))) pool.push(`${a}${b}`);
+  return pool;
+}
+
+function makeTrace({ digits, combine, twoDigit, letters, extra = [], pairs, words, art }) {
   let v;
   do {
     if (art) v = pick(art);
-    else if (letters) v = pick([...letters]);
+    else if (letters) v = pick([...letters, ...extra]);
+    else if (combine) v = pick(digitPool(digits, combine));
     else if (pairs) {
       const c = pick(ALPHABET);
       v = c.toUpperCase() + c;
@@ -742,7 +767,7 @@ export function genTrace({ digits, twoDigit, letters, pairs, words, art }) {
 
 // ---------- Tambah & kurang dengan benda ----------
 
-export function genObjOp({ ops, max }) {
+function makeObjOp({ ops, max }) {
   const op = pick(ops);
   const animal = pick(ANIMALS);
   if (op === 'tambah') {
@@ -776,7 +801,7 @@ function splitAcross(n, k) {
   return counts;
 }
 
-export function genGroup({ type }) {
+function makeGroup({ type }) {
   let baskets;
   let make;
   if (type === 'kind') {
@@ -830,7 +855,7 @@ function distinctSpread(k, lo, hi, gap) {
   }
 }
 
-export function genSize({ type }) {
+function makeSize({ type }) {
   const most = Math.random() < 0.55;
   if (type === 'big') {
     const emoji = pick(BIG_THINGS);
@@ -867,7 +892,7 @@ const notLast = (pool, key) => {
 
 const RAINBOW = Object.keys(PAINTS);
 
-export function genColoring({ type, min = 1, max = 9, extra = 0 }) {
+function makeColoring({ type, min = 1, max = 9, extra = 0 }) {
   const pic = notLast(COLOR_PICTURES.filter((p) => p.regions.length >= min && p.regions.length <= max), 'color');
   const used = [...new Set(pic.regions.map((r) => r.color))];
   if (type === 'number') {
@@ -879,7 +904,7 @@ export function genColoring({ type, min = 1, max = 9, extra = 0 }) {
 }
 
 const ABC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-export function genDots({ type, min, max }) {
+function makeDots({ type, min, max }) {
   const pic = notLast(DOT_PICTURES.filter((p) => p.pts.length >= min && p.pts.length <= max), 'dots');
   const labels = pic.pts.map((_, i) => (type === 'abc' ? ABC[i] : type === 'skip' ? String((i + 1) * 2) : String(i + 1)));
   return { pic, type, labels };
@@ -905,7 +930,7 @@ const parseSeg = (k) => {
   return [[x1, y1], [x2, y2]];
 };
 
-export function genGrid({ type, size, flip }) {
+function makeGrid({ type, size, flip }) {
   if (type === 'copy') {
     const shape = notLast(GRID_COPY[size], 'grid');
     const target = unitsOf(shape.lines);
@@ -927,3 +952,47 @@ export function genGrid({ type, size, flip }) {
   const target = given.map(parseSeg).filter(([p, q]) => !(onAxis(p) && onAxis(q))).map(([p, q]) => segKey(mirror(p), mirror(q)));
   return { type, name: shape.name, cols, rows, axis, flip, given, target };
 }
+
+// ---------- Tanpa soal berulang dalam satu sesi ----------
+// Kunci menentukan kapan dua soal dianggap sama (urutan pilihan jawaban tidak dihitung).
+
+const sorted = (arr) => [...arr].sort().join(',');
+
+export const genAddition = noRepeat('tambah', makeAddition, (q) => q.operands.join('+'));
+export const genSubtraction = noRepeat('kurang', makeSubtraction, (q) => q.operands.join('-'));
+export const genMultiplication = noRepeat('kali', makeMultiplication, (q) => q.operands.join('x'));
+export const genDivision = noRepeat('bagi', makeDivision, (q) => `${q.dividend}:${q.divisor}`);
+export const genLongDivision = noRepeat('porogapit', makeLongDivision, (q) => `${q.dividend}:${q.divisor}`);
+export const genCompare = noRepeat('banding', makeCompare, (q) => sorted([q.a, q.b]));
+export const genExprCompare = noRepeat('hasil', makeExprCompare, (q) => sorted([q.left.text, q.right.text]));
+export const genSort = noRepeat('urut', makeSort, (q) => sorted(q.target));
+export const genPlaceValue = noRepeat('nilai', makePlaceValue, (q) => `${q.number}|${q.pos ?? ''}|${q.ask ?? ''}`);
+export const genStory = noRepeat('cerita', makeStory, (q) => `${q.op}|${q.problem.operands ?? [q.problem.dividend, q.problem.divisor]}`);
+export const genMoney = noRepeat('uang', makeMoney, (q) =>
+  JSON.stringify([q.pieces ?? [], sorted((q.items ?? []).map((i) => `${i.name}${i.price}`)), q.note ?? 0]),
+);
+export const genJump = noRepeat('garis', makeJump, (q) => q.text);
+export const genFact = noRepeat('tabel', makeFact, (q) => q.id);
+export const genPattern = noRepeat('pola', makePattern, (q) => q.seq.join(','));
+export const genMeasure = noRepeat('ukur', makeMeasure, (q) =>
+  JSON.stringify([q.name, q.start, q.length, q.value, q.text, sorted([q.left?.text ?? '', q.right?.text ?? ''])]),
+);
+export const genShape = noRepeat('bangun', makeShape, (q) =>
+  q.field ? `${q.target}|${q.field.filter((s) => s.id === q.target).length}` : (q.shape?.id ?? q.answer),
+);
+export const genFraction = noRepeat('pecahan', makeFraction, (q) =>
+  q.target ? `${q.target.k}/${q.target.d}` : sorted([`${q.a.k}/${q.a.d}`, `${q.b.k}/${q.b.d}`]),
+);
+export const genCount = noRepeat('hitung', makeCount, (q) =>
+  q.groups ? `${q.ask}|${sorted(q.groups.map((g) => g.animal.name + g.n))}` : `${q.animal.name}|${q.answer}`,
+);
+export const genNumeral = noRepeat('angka', makeNumeral, (q) => `${q.type}|${q.answer}|${q.dir ?? ''}`);
+export const genTrace = noRepeat('tulis', makeTrace, (v) => v);
+export const genObjOp = noRepeat('benda', makeObjOp, (q) => `${q.op}|${q.a}|${q.b}|${q.animal.name}`);
+export const genGroup = noRepeat('kelompok', makeGroup, (q) =>
+  sorted(q.items.map((it) => `${it.key}${it.emoji ?? it.shape?.id ?? ''}${it.big ? '+' : ''}`)),
+);
+export const genSize = noRepeat('ukuran', makeSize, (q) => `${q.ask ?? 'urut'}|${q.answer ?? ''}|${q.items.map((i) => i.emoji ?? i.v).join(',')}`);
+export const genColoring = noRepeat('warna', makeColoring, (q) => q.pic.name);
+export const genDots = noRepeat('titik', makeDots, (q) => q.pic.name);
+export const genGrid = noRepeat('cermin', makeGrid, (q) => q.name);

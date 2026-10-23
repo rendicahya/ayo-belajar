@@ -99,7 +99,7 @@ Nama huruf dibacakan dengan suara bahasa Indonesia (Alif, Ba, Ta, …). Bacaan A
 - 🌙 **Mode gelap:** mengikuti pengaturan perangkat, atau dipilih lewat tombol 🌙/☀️ di pojok atas.
 - 📱 **PWA:** bisa dipasang ke layar utama HP/tablet dan dipakai offline setelah dibuka sekali.
 
-Setiap mode punya 5 level dengan 10 soal per sesi. Progres tersimpan di `localStorage` perangkat.
+Setiap mode punya 5 level dengan 10 soal per sesi, dan tidak ada soal yang muncul dua kali dalam satu sesi. Setiap level punya minimal 10 soal berbeda. Level yang isinya sedikit mencampur beberapa jenis soal, misalnya dengar huruf, pasangkan huruf besar–kecil, dan huruf awal gambar. Progres tersimpan di `localStorage` perangkat.
 
 ## Rencana pengembangan
 

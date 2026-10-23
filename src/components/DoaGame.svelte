@@ -19,7 +19,9 @@
   const ask =
     q.type === 'next'
       ? { text: `${doa.title}: ayat sesudahnya apa?`, spoken: `${doa.title}. Ayat sesudahnya apa?` }
-      : { text: `Susun ${doa.surah ? 'ayat-ayat' : ''} ${doa.title}!`.replace('  ', ' '), spoken: `Susun ${doa.title}. Mulai dari kanan.` };
+      : q.type === 'blank'
+        ? { text: `Lengkapi ${doa.title}!`, spoken: `Lengkapi ${doa.title}. Potongan mana yang hilang?` }
+        : { text: `Susun ${doa.surah ? 'ayat-ayat' : ''} ${doa.title}!`.replace('  ', ' '), spoken: `Susun ${doa.title}. Mulai dari kanan.` };
 
   function win() {
     solved = true;
@@ -40,7 +42,10 @@
     attempts++;
     wrong = [...wrong, i];
     play('wrong');
-    message = { text: 'Belum tepat. Coba lantunkan pelan-pelan dari ayat sebelumnya. 💪', kind: 'bad' };
+    message = {
+      text: q.type === 'blank' ? 'Belum tepat. Coba lantunkan pelan-pelan dari awal. 💪' : 'Belum tepat. Coba lantunkan pelan-pelan dari ayat sebelumnya. 💪',
+      kind: 'bad',
+    };
   }
 </script>
 
@@ -51,7 +56,23 @@
   <span>{doa.surah ? doa.meaning : `Artinya: “${doa.meaning}”`}</span>
 </section>
 
-{#if q.type === 'next'}
+{#if q.type === 'blank'}
+  <div class="shown" class:done={solved}>
+    <p class="ar">
+      {#each doa.parts as p, i}
+        {#if i === q.k}<span class="gap" class:ok={solved}>{solved ? p.ar : '……'}</span>{:else}{p.ar}{/if}{' '}
+      {/each}
+    </p>
+  </div>
+  <div class="list">
+    <ChoiceButtons options={q.choices} isRight={(p) => p === q.answer} onpick={pickOption} {wrong} {solved} wide>
+      {#snippet item(p)}
+        <span class="ar">{p.ar}</span>
+        <small>{p.lat}</small>
+      {/snippet}
+    </ChoiceButtons>
+  </div>
+{:else if q.type === 'next'}
   <div class="shown">
     <span class="no">Ayat {q.k + 1}</span>
     <p class="ar">{q.shown.ar}</p>
@@ -122,6 +143,19 @@
 
   .shown .ar {
     font-size: clamp(1.7rem, 7vw, 2.3rem);
+  }
+
+  .gap {
+    display: inline-block;
+    min-width: 3em;
+    padding: 0 6px;
+    border-bottom: 4px dashed var(--dash);
+    color: var(--muted);
+  }
+
+  .gap.ok {
+    border-bottom: 4px solid var(--ok);
+    color: var(--ok);
   }
 
   .lat {

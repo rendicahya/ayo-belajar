@@ -3,6 +3,7 @@
 // dibacakan dengan suara bahasa Indonesia. Lafal Arab tetap dicontohkan guru/orang tua.
 
 import { rand, pick, shuffle } from './generate.js';
+import { noRepeat } from './session.js';
 
 // `lat` = bunyi huruf dalam latin (dipakai untuk bacaan berharakat), `dots` = ciri titiknya
 export const HIJAIYAH = [
@@ -65,7 +66,7 @@ function distinctPicks(pool, answer, n) {
   return shuffle(out);
 }
 
-export function genHijaiyah({ type, from = 0, to = 28, n = 4 }) {
+function makeHijaiyah({ type, from = 0, to = 28, n = 4 }) {
   if (type === 'similar') {
     const group = pick(SIMILAR).map((id) => byId[id]);
     const answer = pick(group);
@@ -91,7 +92,7 @@ export const MARK_NAMES = { a: 'fathah', i: 'kasrah', u: 'dhammah', an: 'fathata
 const syl = (h, v) => ({ ar: h.ch + MARKS[v], lat: h.lat + v });
 const noAlif = HIJAIYAH.filter((h) => h.id !== 'alif');
 
-export function genHarakat({ type }) {
+function makeHarakat({ type }) {
   if (type === 'fathah') {
     const answer = pick(HIJAIYAH);
     const choices = distinctPicks(HIJAIYAH, answer, 3).map((h) => syl(h, 'a').lat);
@@ -342,22 +343,36 @@ export const DOA = [
   },
 ];
 
-let lastDoa = null;
-export function genDoa({ type, sets }) {
-  const pool = DOA.filter((d) => sets.includes(d.set));
-  const item = pick(pool.length > 1 ? pool.filter((d) => d.id !== lastDoa) : pool);
-  lastDoa = item.id;
+function makeDoa({ type: one, types, sets }) {
+  const type = types ? pick(types) : one;
+  const pool = DOA.filter((d) => sets.includes(d.set) && (type !== 'next' || d.surah));
+  const item = pick(pool);
+  const otherParts = (exclude) =>
+    shuffle(DOA.flatMap((d) => d.parts)).filter((p, i, a) => !exclude.some((x) => x.ar === p.ar) && a.findIndex((q) => q.ar === p.ar) === i);
   if (type === 'next') {
     // ayat yang ditampilkan, lalu pilih ayat sesudahnya
     const k = rand(0, item.parts.length - 2);
     const answer = item.parts[k + 1];
-    const others = shuffle(DOA.filter((d) => d.surah).flatMap((d) => d.parts)).filter((p) => p !== answer && p !== item.parts[k]);
-    const same = shuffle(item.parts.filter((p, i) => i !== k && i !== k + 1));
-    const choices = shuffle([answer, ...[...same, ...others].filter((p, i, a) => a.findIndex((q) => q.ar === p.ar) === i && p.ar !== answer.ar).slice(0, 2)]);
+    const same = shuffle(item.parts.filter((_, i) => i !== k && i !== k + 1));
+    const choices = shuffle([answer, ...[...same, ...otherParts([answer, item.parts[k], ...same])].slice(0, 2)]);
     return { type, item, k, shown: item.parts[k], answer, choices };
+  }
+  if (type === 'blank') {
+    // satu potongan disembunyikan, pilih potongan yang tepat
+    const k = rand(0, item.parts.length - 1);
+    const answer = item.parts[k];
+    const same = shuffle(item.parts.filter((_, i) => i !== k));
+    const choices = shuffle([answer, ...[...same, ...otherParts(item.parts)].slice(0, 2)]);
+    return { type, item, k, answer, choices };
   }
   let tiles;
   do tiles = shuffle(item.parts.map((p, id) => ({ id, ...p })));
   while (tiles.every((t, i) => t.id === i));
-  return { type, item, tiles };
+  return { type: 'build', item, tiles };
 }
+
+// ---------- Tanpa soal berulang dalam satu sesi ----------
+
+export const genHijaiyah = noRepeat('hijaiyah', makeHijaiyah, (q) => q.answer.id);
+export const genHarakat = noRepeat('harakat', makeHarakat, (q) => q.ar);
+export const genDoa = noRepeat('doa', makeDoa, (q) => `${q.type}|${q.item.id}|${q.k ?? ''}`);

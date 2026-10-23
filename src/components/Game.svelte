@@ -33,6 +33,7 @@
   import { confetti } from '../lib/confetti.js';
   import { play } from '../lib/sound.js';
   import { getBest, saveBest, recordSolve } from '../lib/settings.svelte.js';
+  import { newSession } from '../lib/session.js';
 
   let { mode, levelIndex } = $props();
 
@@ -74,6 +75,8 @@
   const Game = $derived(games[mode.kind]);
   const bestKey = $derived(`${mode.id}-${levelIndex}`);
 
+  // komponen ini dibuat ulang untuk setiap level, jadi satu sesi tanpa soal berulang dimulai di sini
+  newSession();
   let round = $state(1);
   let results = $state([]); // true = benar di percobaan pertama
   let phase = $state('play'); // play | celebrate | done
@@ -111,6 +114,7 @@
   }
 
   function restart() {
+    newSession();
     round = 1;
     results = [];
     phase = 'play';
