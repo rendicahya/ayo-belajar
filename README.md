@@ -75,6 +75,7 @@ Huruf dibacakan dengan nama Indonesianya (a, be, ce, …). Saat menyusun, keping
 - 🔊 **Ketuk untuk mendengar:** bilangan, petunjuk, dan soal cerita dibacakan dalam bahasa Indonesia (Web Speech API).
 - ⭐ **Bintang & stiker:** bintang didapat bila soal benar pada percobaan pertama tanpa petunjuk. Setiap 5 bintang membuka 1 dari 40 stiker di album.
 - 🔥 **Hari berturut-turut:** menghitung berapa hari berturut-turut anak berlatih.
+- ⛶ **Layar penuh:** tombol di pojok atas untuk masuk/keluar layar penuh (bila didukung browser), supaya anak tidak terganggu bilah browser.
 - 🌙 **Mode gelap:** mengikuti pengaturan perangkat, atau dipilih lewat tombol 🌙/☀️ di pojok atas.
 - 📱 **PWA:** bisa dipasang ke layar utama HP/tablet dan dipakai offline setelah dibuka sekali.
 

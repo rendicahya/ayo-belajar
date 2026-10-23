@@ -10,6 +10,14 @@
   applyTheme();
   const dark = $derived(isDark());
 
+  // layar penuh: tidak tersedia di semua browser (mis. Safari iPhone), jadi tombolnya disembunyikan
+  const canFullscreen = typeof document !== 'undefined' && document.fullscreenEnabled;
+  let fullscreen = $state(false);
+  function toggleFullscreen() {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(() => {});
+  }
+
   // #/ → beranda, #/tambah → pilih level, #/tambah/2 → main level 2
   const route = $derived.by(() => {
     const [modeId, levelNo] = hash.replace(/^#\/?/, '').split('/');
@@ -25,6 +33,7 @@
 </script>
 
 <svelte:window onhashchange={() => (hash = location.hash)} />
+<svelte:document onfullscreenchange={() => (fullscreen = !!document.fullscreenElement)} />
 
 <header>
   {#if route.back}
@@ -41,6 +50,22 @@
       <span class="name">{route.title}</span>
     {/if}
   </div>
+  {#if canFullscreen}
+    <button
+      class="round"
+      onclick={toggleFullscreen}
+      aria-label={fullscreen ? 'Keluar layar penuh' : 'Layar penuh'}
+      title={fullscreen ? 'Keluar layar penuh' : 'Layar penuh'}
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        {#if fullscreen}
+          <path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" />
+        {:else}
+          <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
+        {/if}
+      </svg>
+    </button>
+  {/if}
   <button
     class="round"
     onclick={toggleTheme}
@@ -101,6 +126,16 @@
   .round:active {
     transform: translateY(3px);
     box-shadow: 0 1px 0 var(--line);
+  }
+
+  .round svg {
+    width: 26px;
+    height: 26px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 
   .logo {
